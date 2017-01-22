@@ -12,4 +12,4 @@ Sounds: CC0
 
 Mod dependencies: default, inspire?, elixirs?, tnt?
 
-Download: https://github.com/duane-r/inspire/archive/master.zip
+Download: https://github.com/duane-r/fun_tools/archive/master.zip
