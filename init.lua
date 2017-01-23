@@ -341,7 +341,7 @@ minetest.register_node("fun_tools:flare", {
 	tiles = {"fun_tools_flare.png"},
 	paramtype = "light",
 	sunlight_propagates = true,
-	light_source = 15,
+	light_source = 14,
 	walkable = false,
 	diggable = false,
 	pointable = false,
@@ -381,11 +381,8 @@ minetest.register_craft({
 
 minetest.register_craft({
 	output = 'fun_tools:flare_gun',
-	recipe = {
-		{'', '', ''},
-		{'', 'fun_tools:flare_gun', ''},
-		{'', 'tnt:gunpowder', ''},
-	}
+  type = 'shapeless',
+	recipe = { 'fun_tools:flare_gun', 'tnt:gunpowder', }
 })
 
 
