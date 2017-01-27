@@ -6,6 +6,18 @@ fun_tools_mod = {}
 fun_tools_mod.version = "1.0"
 fun_tools_mod.path = minetest.get_modpath(minetest.get_current_modname())
 fun_tools_mod.world = minetest.get_worldpath()
+fun_tools_mod.which_dry_fiber = 'fun_tools'
+
+
+function clone_node(name)
+	if not (name and type(name) == 'string') then
+		return
+	end
+
+	local node = minetest.registered_nodes[name]
+	local node2 = table.copy(node)
+	return node2
+end
 
 
 local fuel_source = 'default:coalblock'
@@ -19,7 +31,6 @@ if minetest.registered_items['inspire:inspiration'] then
 end
 
 
---dofile(inspire.path .. "/recipes.lua")
 local function power(player, pos, tool_type, max)
 	if not (player and pos and tool_type) then
 		return
@@ -410,3 +421,151 @@ minetest.register_abm({
 		minetest.remove_node(pos)
 	end,
 })
+
+
+local function rope_remove(pos)
+	if not pos then
+		return
+	end
+
+	for i = 1, 100 do
+		local newpos = table.copy(pos)
+		newpos.y = newpos.y - i
+		local node = minetest.get_node_or_nil(newpos)
+		if node and node.name and node.name == 'fun_tools:rope_ladder_piece' then
+			minetest.set_node(newpos, {name='air'})
+		else
+			break
+		end
+	end
+end
+
+local good_params = {nil, true, true, true, true}
+for length = 10, 50, 10 do
+	minetest.register_node("fun_tools:rope_ladder_"..length, {
+		description = "Rope Ladder ("..length.." meter)",
+		drawtype = "signlike",
+		tiles = {"fun_tools_rope_ladder.png"},
+		inventory_image = "fun_tools_rope_ladder.png",
+		wield_image = "fun_tools_rope_ladder.png",
+		paramtype = "light",
+		paramtype2 = "wallmounted",
+		sunlight_propagates = true,
+		walkable = false,
+		climbable = true,
+		is_ground_content = false,
+		selection_box = {
+			type = "wallmounted",
+		},
+		groups = {snappy = 2, oddly_breakable_by_hand = 3, flammable = 2},
+		legacy_wallmounted = true,
+		sounds = default.node_sound_leaves_defaults(),
+		after_place_node = function(pos, placer, itemstack, pointed_thing)
+			if not (pointed_thing and pointed_thing.above) then
+				return
+			end
+
+			local pos_old = pointed_thing.above
+			local orig = minetest.get_node_or_nil(pos_old)
+			if orig and orig.name and orig.param2 and good_params[orig.param2] then
+				for i = 1, length do
+					local newpos = table.copy(pos_old)
+					newpos.y = newpos.y - i
+					local node = minetest.get_node_or_nil(newpos)
+					if node and node.name and node.name == 'air' then
+						minetest.set_node(newpos, {name='fun_tools:rope_ladder_piece', param2=orig.param2})
+					else
+						break
+					end
+				end
+			end
+		end,
+		on_destruct = rope_remove,
+	})
+
+	if length > 10 then
+		rec = {}
+		for i = 10, length, 10 do
+			rec[#rec+1] = 'fun_tools:rope_ladder_10'
+		end
+		minetest.register_craft({
+			output = 'fun_tools:rope_ladder_'..length,
+			type = 'shapeless',
+			recipe = rec,
+		})
+	end
+end
+
+minetest.register_node("fun_tools:rope_ladder_piece", {
+	description = "Rope Ladder",
+	drawtype = "signlike",
+	tiles = {"fun_tools_rope_ladder.png"},
+	inventory_image = "fun_tools_rope_ladder.png",
+	wield_image = "fun_tools_rope_ladder.png",
+	drop = {},
+	paramtype = "light",
+	paramtype2 = "wallmounted",
+	buildable_to = true,
+	sunlight_propagates = true,
+	walkable = false,
+	climbable = true,
+	is_ground_content = false,
+	selection_box = {
+		type = "wallmounted",
+	},
+	groups = {snappy = 2, oddly_breakable_by_hand = 3, flammable = 2},
+	legacy_wallmounted = true,
+	sounds = default.node_sound_leaves_defaults(),
+	on_destruct = rope_remove,
+})
+
+if minetest.registered_items['fun_caves:dry_fiber'] then
+  minetest.register_alias('fun_tools:dry_fiber', 'fun_caves:dry_fiber')
+  fun_tools_mod.which_dry_fiber = 'fun_caves'
+else
+  local newnode = clone_node("farming:straw")
+  newnode.description = "Dry Fiber"
+  minetest.register_node("fun_tools:dry_fiber", newnode)
+
+  minetest.register_craft({
+    type = "fuel",
+    recipe = "fun_tools:dry_fiber",
+    burntime = 5,
+  })
+end
+
+newnode = clone_node("farming:straw")
+newnode.description = 'Bundle of Grass'
+newnode.tiles = {'farming_straw.png^[colorize:#00FF00:50'}
+minetest.register_node("fun_tools:bundle_of_grass", newnode)
+
+minetest.register_craft({
+	output = 'fun_tools:bundle_of_grass',
+	type = 'shapeless',
+	recipe = {
+		'default:junglegrass', 'default:junglegrass',
+		'default:junglegrass', 'default:junglegrass',
+	}
+})
+
+minetest.register_craft({
+	type = "cooking",
+	output = fun_tools_mod.which_dry_fiber..":dry_fiber",
+	recipe = 'fun_tools:bundle_of_grass',
+	cooktime = 3,
+})
+
+do
+  local fib = fun_tools_mod.which_dry_fiber..':dry_fiber'
+  minetest.register_craft({
+    output = 'fun_tools:rope_ladder_10',
+    recipe = {
+      {fib, '', fib},
+      {fib, fib, fib},
+      {fib, '', fib},
+    }
+  })
+end
+
+
+dofile(fun_tools_mod.path .. "/wallhammer.lua")

@@ -1,4 +1,5 @@
 default
-inspire?
 elixirs?
+fun_caves?
+inspire?
 tnt?
