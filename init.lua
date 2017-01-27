@@ -364,6 +364,18 @@ minetest.register_tool("fun_tools:flare_gun", {
 			return
 		end
 
+    print(itemstack:get_wear())
+    if itemstack:get_wear() > 50000 then
+      local inv = user:get_inventory()
+      if inv then
+        if inv:contains_item('main', 'tnt:gunpowder') then
+          inv:remove_item('main', 'tnt:gunpowder')
+          itemstack:clear()
+          itemstack:add_item('fun_tools:flare_gun')
+        end
+      end
+    end
+
 		local count = flares(user)
 		itemstack:add_wear(count * 400)
 		return itemstack
