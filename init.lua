@@ -375,7 +375,7 @@ minetest.register_tool("fun_tools:flare_gun", {
 			return
 		end
 
-    print(itemstack:get_wear())
+    --print(itemstack:get_wear())
     if itemstack:get_wear() > 50000 then
       local inv = user:get_inventory()
       if inv then
