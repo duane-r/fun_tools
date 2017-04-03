@@ -27,7 +27,7 @@ for _, i in pairs({
     table.insert(default_material, i)
   end
 end
-print(dump(default_material))
+--print(dump(default_material))
 
 
 local function parti(pos)
