@@ -313,7 +313,12 @@ local function flares(player)
 	pos = vector.round(pos)
 
 	local air = minetest.get_content_id('air')
-	local flare = minetest.get_content_id('fun_tools:flare')
+	local gas = minetest.get_content_id('fun_caves:inert_gas')
+  local water = minetest.get_content_id('default:water_source')
+	local flare_air = minetest.get_content_id('fun_tools:flare_air')
+	local flare_gas = minetest.get_content_id('fun_tools:flare_gas')
+  local flare_water = minetest.get_content_id('fun_tools:flare_water')
+	--local flare = minetest.get_content_id('fun_tools:flare')
 	local vm = minetest.get_voxel_manip()
 	if not vm then
 		return
@@ -332,7 +337,13 @@ local function flares(player)
 		local z = pos.z + math.random(2 * r + 1) - r - 1
 		local ivm = area:index(x, y, z)
 		if data[ivm] == air then
-			data[ivm] = flare
+			data[ivm] = flare_air
+			count = count + 1
+    elseif data[ivm] == gas then
+			data[ivm] = flare_gas
+			count = count + 1
+    elseif data[ivm] == water then
+			data[ivm] = flare_water
 			count = count + 1
 		end
 	end
@@ -345,19 +356,35 @@ local function flares(player)
 	return count
 end
 
-minetest.register_node("fun_tools:flare", {
-	description = "Flare Gun",
-	drawtype = "plantlike",
-	visual_scale = 0.75,
-	tiles = {"fun_tools_flare.png"},
-	paramtype = "light",
-	sunlight_propagates = true,
-	light_source = 14,
-	walkable = false,
-	diggable = false,
-	pointable = false,
-	is_ground_content = false,
-})
+do
+  local newnode = clone_node("air")
+  newnode.light_source = 14
+  minetest.register_node('fun_tools:flare_air', newnode)
+
+  newnode = clone_node("default:water_source")
+  newnode.light_source = 14
+	newnode.liquid_alternative_flowing = "fun_tools:flare_water"
+	newnode.liquid_alternative_source = "fun_tools:flare_water"
+  minetest.register_node('fun_tools:flare_water', newnode)
+
+  newnode = clone_node("fun_caves:inert_gas")
+  newnode.light_source = 14
+  minetest.register_node('fun_tools:flare_gas', newnode)
+end
+
+--minetest.register_node("fun_tools:flare", {
+--	description = "Flare Gun",
+--	drawtype = "plantlike",
+--	visual_scale = 0.75,
+--	tiles = {"fun_tools_flare.png"},
+--	paramtype = "light",
+--	sunlight_propagates = true,
+--	light_source = 14,
+--	walkable = false,
+--	diggable = false,
+--	pointable = false,
+--	is_ground_content = false,
+--})
 
 minetest.register_tool("fun_tools:flare_gun", {
 	description = "Flare Gun",
@@ -410,7 +437,7 @@ minetest.register_craft({
 
 
 minetest.register_abm({
-	nodenames = {"fun_tools:flare",},
+	nodenames = {"fun_tools:flare_air",},
 	interval = 5,
 	chance = 10,
 	action = function(pos, node)
@@ -421,6 +448,45 @@ minetest.register_abm({
 		minetest.remove_node(pos)
 	end,
 })
+
+minetest.register_abm({
+	nodenames = {"fun_tools:flare_gas",},
+	interval = 5,
+	chance = 10,
+	action = function(pos, node)
+		if not (pos and node) then
+			return
+		end
+
+		minetest.set_node(pos, {name='fun_caves:inert_gas'})
+	end,
+})
+
+minetest.register_abm({
+	nodenames = {"fun_tools:flare_water",},
+	interval = 5,
+	chance = 10,
+	action = function(pos, node)
+		if not (pos and node) then
+			return
+		end
+
+		minetest.set_node(pos, {name='default:water_source'})
+	end,
+})
+
+--minetest.register_abm({
+--	nodenames = {"fun_tools:flare",},
+--	interval = 5,
+--	chance = 10,
+--	action = function(pos, node)
+--		if not (pos and node) then
+--			return
+--		end
+--
+--		minetest.remove_node(pos)
+--	end,
+--})
 
 
 local function rope_remove(pos)
@@ -569,3 +635,18 @@ end
 
 
 dofile(fun_tools_mod.path .. "/wallhammer.lua")
+
+
+minetest.register_craft({
+	output = "default:stick 2",
+	recipe = {
+		{"group:sapling"}
+	}
+})
+
+minetest.register_craft({
+	output = "default:stick 2",
+	recipe = {
+		{"default:cactus"}
+	}
+})
