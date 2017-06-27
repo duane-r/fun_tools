@@ -652,3 +652,23 @@ minetest.register_craft({
 		{"default:cactus"}
 	}
 })
+
+
+beds.register_bed("fun_tools:nest", {
+	description = "Nest of Leaves",
+  tiles = {
+    bottom = {"default_leaves.png^[noalpha"},
+    top = {"default_leaves.png^[noalpha"},
+  },
+	inventory_image = "default_leaves.png",
+	wield_image = "default_leaves.png",
+	nodebox = {
+		bottom = {-0.5, -0.5, -0.5, 0.5, -0.3, 0.5},
+		top = {-0.5, -0.5, -0.5, 0.5, -0.3, 0.5},
+	},
+	selectionbox = {-0.5, -0.5, -0.5, 0.5, -0.3, 0.5},
+	recipe = {
+		{'default:leaves', 'default:leaves',},
+		{'default:leaves', 'default:leaves',},
+	},
+})
