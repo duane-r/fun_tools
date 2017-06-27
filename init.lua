@@ -367,9 +367,11 @@ do
 	newnode.liquid_alternative_source = "fun_tools:flare_water"
   minetest.register_node('fun_tools:flare_water', newnode)
 
-  newnode = clone_node("fun_caves:inert_gas")
-  newnode.light_source = 14
-  minetest.register_node('fun_tools:flare_gas', newnode)
+  if minetest.registered_items['fun_caves:inert_gas'] then
+    newnode = clone_node("fun_caves:inert_gas")
+    newnode.light_source = 14
+    minetest.register_node('fun_tools:flare_gas', newnode)
+  end
 end
 
 --minetest.register_node("fun_tools:flare", {
