@@ -617,6 +617,15 @@ minetest.register_craft({
 })
 
 minetest.register_craft({
+  output = 'fun_tools:bundle_of_grass',
+  recipe = {
+    {'default:grass_1', 'default:grass_1', 'default:grass_1', },
+    {'default:grass_1', 'default:grass_1', 'default:grass_1', },
+    {'default:grass_1', 'default:grass_1', 'default:grass_1', },
+  }
+})
+
+minetest.register_craft({
 	type = "cooking",
 	output = fun_tools_mod.which_dry_fiber..":dry_fiber",
 	recipe = 'fun_tools:bundle_of_grass',
