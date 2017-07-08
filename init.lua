@@ -663,6 +663,17 @@ minetest.register_craft({
 })
 
 
+minetest.register_craft({
+	output = "default:glass",
+  type = 'shapeless',
+	recipe = {
+		"xpanes:pane_flat",
+		"xpanes:pane_flat",
+		"xpanes:pane_flat",
+	}
+})
+
+
 beds.register_bed("fun_tools:nest", {
 	description = "Nest of Leaves",
   tiles = {

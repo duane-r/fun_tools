@@ -14,6 +14,8 @@ local default_material = {}
 for _, i in pairs({
   {"default:cobble", "default_cobble", "Cobble", {cracky = 3, not_in_creative_inventory=1}, nil},
   {"default:stone","default_stone", "Stone", {cracky = 3, not_in_creative_inventory=1}, "default:cobble"},
+  {"geomoria:stone","default_stone", "Stone", {cracky = 3, not_in_creative_inventory=1}, "default:cobble"},
+  {"geomoria:stone2","default_stone", "Stone", {cracky = 3, not_in_creative_inventory=1}, "default:cobble"},
   {"default:desert_stone","default_desert_stone", "Desert Stone", {cracky = 3, not_in_creative_inventory=1}, nil},
   {"default:desert_cobble","default_desert_cobble", "Desert Cobble", {cracky = 3, not_in_creative_inventory=1}, nil},
   {"default:sandstone","default_sandstone", "Sandstone", {cracky = 3, not_in_creative_inventory=1}, nil},
