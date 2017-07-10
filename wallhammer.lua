@@ -24,6 +24,7 @@ for _, i in pairs({
   {"fun_caves:stone_with_moss","default_stone", "Stone", {cracky = 3, not_in_creative_inventory=1}, "default:cobble"},
   {"default:mossycobble","default_stone", "Stone", {cracky = 3, not_in_creative_inventory=1}, "default:cobble"},
   {"fun_caves:stone_with_salt","caverealms_salty2", "Stone", {cracky = 3, not_in_creative_inventory=1}, "fun_caves:stone_with_salt"},
+  {"squaresville:concrete","default_stone", "Stone", {cracky = 3, not_in_creative_inventory=1}, "squaresville:concrete"},
 }) do
   if minetest.registered_items[i[1]] then
     table.insert(default_material, i)
