@@ -270,6 +270,42 @@ minetest.register_craft({
 })
 
 
+-- Glow produces no light.
+--local function flares_fail(player)
+--  local dir = player:get_look_dir()
+--  local ppos = player:getpos()
+--  if not ppos then
+--    return
+--  end
+--  local pos = {}
+--  pos.x = ppos.x + dir.x * 10
+--  pos.y = ppos.y + dir.y * 10
+--  pos.z = ppos.z + dir.z * 10
+--  pos = vector.round(pos)
+--
+--  local r = 8
+--  local def = {
+--    pos = ppos,
+--    velocity = dir,
+--    acceleration = {x=dir.x/-10, y=(dir.y/-10)-0.1, z=(dir.z/-10)},
+--    expirationtime = 30,
+--    collisiondetection = true,
+--    texture = "fun_tools_flare.png",
+--    glow = 14,
+--  }
+--  for i = 1, 50 do
+--    local x = pos.x + math.random(2 * r + 1) - r - 1
+--    local y = pos.y + math.random(2 * r + 1) - r - 1
+--    local z = pos.z + math.random(2 * r + 1) - r - 1
+--    local defi = table.copy(def)
+--    defi.velocity = {x=def.velocity.x+math.random(3)-1, y=def.velocity.y+math.random(3)-1, z=def.velocity.z+math.random(3)-1}
+--    minetest.add_particle(defi)
+--  end
+--
+--  return 1
+--end
+
+
 local function flares(player)
   local dir = player:get_look_dir()
   local pos = player:getpos()
@@ -287,7 +323,6 @@ local function flares(player)
   local flare_air = minetest.get_content_id('fun_tools:flare_air')
   local flare_gas = minetest.get_content_id('fun_tools:flare_gas')
   local flare_water = minetest.get_content_id('fun_tools:flare_water')
-  --local flare = minetest.get_content_id('fun_tools:flare')
   local vm = minetest.get_voxel_manip()
   if not vm then
     return
@@ -296,66 +331,61 @@ local function flares(player)
   local r = 8
   local minp = vector.subtract(pos, r)
   local maxp = vector.add(pos, r)
-  local emin, emax = vm:read_from_map(minp, maxp)
-  local area = VoxelArea:new({MinEdge = emin, MaxEdge = emax})
-  local data = vm:get_data()
   local count = 0
   for i = 1, 50 do
-    local x = pos.x + math.random(2 * r + 1) - r - 1
-    local y = pos.y + math.random(2 * r + 1) - r - 1
-    local z = pos.z + math.random(2 * r + 1) - r - 1
-    local ivm = area:index(x, y, z)
-    if data[ivm] == air then
-      data[ivm] = flare_air
+    local fpos = {}
+    fpos.x = pos.x + math.random(2 * r + 1) - r - 1
+    fpos.y = pos.y + math.random(2 * r + 1) - r - 1
+    fpos.z = pos.z + math.random(2 * r + 1) - r - 1
+    local n = minetest.get_node_or_nil(fpos)
+    if n and n.name == 'air' then
+      minetest.set_node(fpos, {name='fun_tools:flare_air'})
+      local timer = minetest.get_node_timer(fpos)
+      timer:set(math.random(60), 0)
       count = count + 1
-    elseif data[ivm] == gas then
-      data[ivm] = flare_gas
+    elseif n and n.name == 'fun_caves:inert_gas' then
+      minetest.set_node(fpos, {name='fun_tools:flare_gas'})
+      local timer = minetest.get_node_timer(fpos)
+      timer:set(math.random(60), 0)
       count = count + 1
-    elseif data[ivm] == water then
-      data[ivm] = flare_water
+    elseif n and n.name == 'default:water_source' then
+      minetest.set_node(fpos, {name='fun_tools:flare_water'})
+      local timer = minetest.get_node_timer(fpos)
+      timer:set(math.random(60), 0)
       count = count + 1
     end
   end
-  vm:set_data(data)
-  vm:calc_lighting(minp, maxp)
-  vm:update_liquids()
-  vm:write_to_map()
-  vm:update_map()
 
   return count
 end
 
+
 do
   local newnode = clone_node("air")
   newnode.light_source = 14
+  newnode.on_timer = function(pos, elapsed)
+    minetest.remove_node(pos)
+  end
   minetest.register_node('fun_tools:flare_air', newnode)
 
   newnode = clone_node("default:water_source")
   newnode.light_source = 14
   newnode.liquid_alternative_flowing = "fun_tools:flare_water"
   newnode.liquid_alternative_source = "fun_tools:flare_water"
+  newnode.on_timer = function(pos, elapsed)
+    minetest.remove_node(pos)
+  end
   minetest.register_node('fun_tools:flare_water', newnode)
 
   if minetest.registered_items['fun_caves:inert_gas'] then
     newnode = clone_node("fun_caves:inert_gas")
     newnode.light_source = 14
+    newnode.on_timer = function(pos, elapsed)
+      minetest.remove_node(pos)
+    end
     minetest.register_node('fun_tools:flare_gas', newnode)
   end
 end
-
---minetest.register_node("fun_tools:flare", {
---	description = "Flare Gun",
---	drawtype = "plantlike",
---	visual_scale = 0.75,
---	tiles = {"fun_tools_flare.png"},
---	paramtype = "light",
---	sunlight_propagates = true,
---	light_source = 14,
---	walkable = false,
---	diggable = false,
---	pointable = false,
---	is_ground_content = false,
---})
 
 minetest.register_tool("fun_tools:flare_gun", {
   description = "Flare Gun",
@@ -405,59 +435,6 @@ minetest.register_craft({
   type = 'shapeless',
   recipe = { 'fun_tools:flare_gun', 'tnt:gunpowder', }
 })
-
-
-minetest.register_abm({
-  nodenames = {"fun_tools:flare_air",},
-  interval = 5,
-  chance = 10,
-  action = function(pos, node)
-    if not (pos and node) then
-      return
-    end
-
-    minetest.remove_node(pos)
-  end,
-})
-
-minetest.register_abm({
-  nodenames = {"fun_tools:flare_gas",},
-  interval = 5,
-  chance = 10,
-  action = function(pos, node)
-    if not (pos and node) then
-      return
-    end
-
-    minetest.set_node(pos, {name='fun_caves:inert_gas'})
-  end,
-})
-
-minetest.register_abm({
-  nodenames = {"fun_tools:flare_water",},
-  interval = 5,
-  chance = 10,
-  action = function(pos, node)
-    if not (pos and node) then
-      return
-    end
-
-    minetest.set_node(pos, {name='default:water_source'})
-  end,
-})
-
---minetest.register_abm({
---	nodenames = {"fun_tools:flare",},
---	interval = 5,
---	chance = 10,
---	action = function(pos, node)
---		if not (pos and node) then
---			return
---		end
---
---		minetest.remove_node(pos)
---	end,
---})
 
 
 local function rope_remove(pos)
