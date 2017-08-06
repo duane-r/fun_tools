@@ -638,3 +638,11 @@ beds.register_bed("fun_tools:nest", {
     {'default:leaves', 'default:leaves',},
   },
 })
+
+minetest.register_craft({
+  output = "fun_tools:nest",
+  recipe = {
+    {'default:pine_needles', 'default:pine_needles',},
+    {'default:pine_needles', 'default:pine_needles',},
+  }
+})
