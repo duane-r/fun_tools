@@ -3,7 +3,7 @@
 -- Distributed under the LGPLv2.1 (https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html)
 
 fun_tools_mod = {}
-fun_tools_mod.version = "1.0"
+fun_tools_mod.version = "20171028"
 fun_tools_mod.path = minetest.get_modpath(minetest.get_current_modname())
 fun_tools_mod.world = minetest.get_worldpath()
 fun_tools_mod.which_dry_fiber = 'fun_tools'
@@ -644,5 +644,21 @@ minetest.register_craft({
   recipe = {
     {'default:pine_needles', 'default:pine_needles',},
     {'default:pine_needles', 'default:pine_needles',},
+  }
+})
+
+minetest.register_craft({
+  output = "fun_tools:nest",
+  recipe = {
+    {'default:bush_leaves', 'default:bush_leaves',},
+    {'default:bush_leaves', 'default:bush_leaves',},
+  }
+})
+
+minetest.register_craft({
+  output = "fun_tools:nest",
+  recipe = {
+    {'default:acacia_leaves', 'default:acacia_leaves',},
+    {'default:acacia_leaves', 'default:acacia_leaves',},
   }
 })
