@@ -662,3 +662,11 @@ minetest.register_craft({
     {'default:acacia_leaves', 'default:acacia_leaves',},
   }
 })
+
+minetest.register_craft({
+  output = "fun_tools:nest",
+  recipe = {
+    {'default:acacia_bush_leaves', 'default:acacia_bush_leaves',},
+    {'default:acacia_bush_leaves', 'default:acacia_bush_leaves',},
+  }
+})
