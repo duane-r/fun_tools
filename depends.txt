@@ -1,6 +1,0 @@
-default
-beds
-elixirs?
-fun_caves?
-inspire?
-tnt?
