@@ -10,6 +10,8 @@ mod.path = minetest.get_modpath(minetest.get_current_modname())
 mod.world = minetest.get_worldpath()
 mod.which_dry_fiber = 'fun_tools'
 
+mod.creative = minetest.setting_getbool('creative_mode')
+
 
 mod.environ_mod = 'mapgen'
 local environ_mod = mod.environ_mod
@@ -289,7 +291,9 @@ minetest.register_tool(mod_name..':chainsaw', {
 
 		if pointed_thing.type == 'object' then
 			pointed_thing.ref:punch(user, nil, itemstack:get_tool_capabilities(), nil)
-			itemstack:add_wear(800)
+			if not mod.creative then
+				itemstack:add_wear(800)
+			end
 			return itemstack
 		else
 			return power(user, pointed_thing.under, 'axe')
@@ -504,7 +508,9 @@ minetest.register_tool(mod_name..':flare_gun', {
 				itemstack:add_item(mod_name..':flare_gun')
 			end
 		else
-			itemstack:add_wear(wear)
+			if not mod.creative then
+				itemstack:add_wear(wear)
+			end
 		end
 
 		return itemstack
@@ -1001,4 +1007,89 @@ minetest.register_tool(mod_name..':flintlock_pistol_loaded', {
 		itemstack:add_item(mod_name..':flintlock_pistol_unloaded')
 		return itemstack
 	end,
+})
+
+
+------------------------------------------------
+-- Golden Tesseract
+------------------------------------------------
+
+
+mod.item_used = {}
+function mod.teleport(itemstack, user, sound)
+	local delay = 1.5
+
+	if not user then
+		return
+	end
+
+	local player_name = user:get_player_name()
+	if os.time() - (mod.item_used[player_name] or 0) < (delay or 1) then
+		return
+	end
+
+	mod.item_used[player_name] = os.time()
+
+	if sound then
+		minetest.sound_play(sound, {
+			object = user,
+			gain = 0.1,
+			max_hear_distance = 30
+		})
+	end
+
+	local range = 100
+	local dir = user:get_look_dir()
+	local playerpos = user:getpos()
+	local p = table.copy(playerpos)
+	local lp = playerpos
+	p.y = p.y + 1.5
+
+	for dist = 1, range do
+		p = vector.add(p, dir)
+		local n = minetest.get_node_or_nil(p)
+		if (n and n.name and n.name ~= 'air')
+			or (dist == range and n and n.name and n.name == 'air') then
+			user:set_pos(lp)
+			if not mod.creative then
+				itemstack:add_wear(dist * 100)
+			end
+			return itemstack
+		end
+		lp = p
+	end
+end
+
+minetest.register_tool(mod_name..':gold_tess', {
+	description = 'Golden Tesseract',
+	drawtype = "plantlike",
+	paramtype = "light",
+	tiles = { mod_name..'_gold_tess.png' },
+	inventory_image = mod_name..'_gold_tess.png',
+	groups = {dig_immediate = 3},
+	tool_capabilities = {
+		full_punch_interval = 1.5,
+		max_drop_level=1,
+		groupcaps={
+			cracky = {times={[1]=2.00, [2]=0.80, [3]=0.40}, uses=80, maxlevel=2},
+		},
+		damage_groups = {},
+	},
+	on_use = function(itemstack, user, pointed_thing)
+		if not user then
+			return
+		end
+
+		local sound
+		return mod.teleport(itemstack, user, sound)
+	end,
+})
+
+minetest.register_craft({
+	output = mod_name..':gold_tess',
+	recipe = {
+		{'default:gold_ingot', '', 'default:gold_ingot'},
+		{'', 'default:mese_crystal', ''},
+		{'default:gold_ingot', '', 'default:gold_ingot'},
+	},
 })

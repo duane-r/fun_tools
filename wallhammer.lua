@@ -102,7 +102,7 @@ minetest.register_tool( mod_name..':wall_hammer',{
 			end
 		end
 
-		if not minetest.setting_getbool('creative_mode') then
+		if not mod.creative then
 			itemstack:add_wear((65535 / (USES - 1)) * hardness)
 		end
 
