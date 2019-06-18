@@ -11,7 +11,22 @@ mod.world = minetest.get_worldpath()
 mod.which_dry_fiber = 'fun_tools'
 
 
-function clone_node(name)
+mod.environ_mod = 'mapgen'
+local environ_mod = mod.environ_mod
+
+
+local fast_load = minetest.setting_getbool('fun_tools_fast_load')
+if fast_load == nil then
+	fast_load = true
+end
+
+local remove_bronze = minetest.setting_getbool('fun_tools_remove_bronze')
+if remove_bronze == nil then
+	remove_bronze = true
+end
+
+
+function mod.clone_node(name)
 	if not (name and type(name) == 'string') then
 		return
 	end
@@ -19,6 +34,115 @@ function clone_node(name)
 	local node = minetest.registered_nodes[name]
 	local node2 = table.copy(node)
 	return node2
+end
+local clone_node = mod.clone_node
+
+
+function mod.puff(p)
+	local radius = 1
+	local velocity = 1.9*math.log(radius + 1)
+	local q = 20*math.log(radius + 1)
+	minetest.add_particlespawner({
+		amount = q,
+		time = 0.3,
+		minpos = vector.subtract(p, radius),
+		maxpos = vector.add(p, radius),
+		minvel = {x = -velocity, y = -velocity, z = -velocity},
+		maxvel = {x = velocity, y = velocity, z = velocity},
+		minacc = vector.new(),
+		maxacc = vector.new(),
+		minexptime = 0.5,
+		maxexptime = 1,
+		minsize = 9,
+		maxsize = 10,
+		texture = "tnt_smoke.png",
+	})
+	radius = 1
+	velocity = 1.9*math.log(radius + 1)
+	q = 20*math.log(radius + 1)
+	minetest.add_particlespawner({
+		amount = q,
+		time = 0.3,
+		minpos = vector.subtract(p, radius),
+		maxpos = vector.add(p, radius),
+		minvel = {x = -velocity, y = -velocity, z = -velocity},
+		maxvel = {x = velocity, y = velocity, z = velocity},
+		minacc = vector.new(),
+		maxacc = vector.new(),
+		minexptime = 0.5,
+		maxexptime = 1,
+		minsize = 9,
+		maxsize = 10,
+		texture = "tnt_smoke.png",
+	})
+end
+
+
+function mod.ranged_attack(itemstack, user, range)
+	local shot
+	local dir = user:get_look_dir()
+	local playerpos = user:getpos()
+	local p = table.copy(playerpos)
+	p.y = p.y + 1.5
+
+	local eps = {}
+	for id, ent in pairs(minetest.luaentities) do
+		if ent and ent.object and ent.object.get_pos and (ent._is_a_mob or ent.health) then
+			local ep = ent.object:get_pos()
+			if vector.distance(ep, p) < range then
+				eps[id] = ep
+			end
+		end
+	end
+
+	for _ = 1, range do
+		p = vector.add(p, dir)
+
+		for id in pairs(eps) do
+			if vector.distance(eps[id], p) < 1 then
+				local ent = minetest.luaentities[id]
+				if ent and ent._printed_name then
+					local player_name = user:get_player_name()
+					if player_name then
+						minetest.chat_send_player(player_name, 'You hit the ' .. ent._printed_name)
+					end
+				end
+
+				ent.object:punch(user, nil, itemstack:get_tool_capabilities(), nil)
+				shot = true
+				break
+			end
+		end
+
+		if shot then
+			mod.puff(p)
+			break
+		end
+	end
+end
+
+
+function mod.use_inventory_items(user, items)
+	if not (user and items) then
+		return
+	end
+
+	local inv = user:get_inventory()
+	if not inv then
+		return
+	end
+
+	for _, item in pairs(items) do
+		if not inv:contains_item('main', item) then
+			return
+		end
+	end
+
+	for _, item in pairs(items) do
+		inv:remove_item('main', item)
+	end
+
+	return true
 end
 
 
@@ -39,11 +163,10 @@ local function power(player, pos, tool_type, max)
 	end
 
 	local player_pos = vector.round(player:getpos())
-	local player_name = player:get_player_name()
 	local inv = player:get_inventory()
 	pos = vector.round(pos)
-	local node = minetest.get_node_or_nil(pos)
-	if not (node and player_pos and player_name and inv) then
+	local pointed_node = minetest.get_node_or_nil(pos)
+	if not (pointed_node and player_pos and inv) then
 		return
 	end
 
@@ -58,7 +181,7 @@ local function power(player, pos, tool_type, max)
 		return
 	end
 
-	if minetest.get_item_group(node.name, node_type) == 0 then
+	if minetest.get_item_group(pointed_node.name, node_type) == 0 then
 		return
 	end
 
@@ -77,13 +200,11 @@ local function power(player, pos, tool_type, max)
 		yloop_a, yloop_b, yloop_c = maxp.y, minp.y, -1
 	end
 
-	local air = minetest.get_content_id('air')
 	local vm = minetest.get_voxel_manip()
 	if not vm then
 		return
 	end
 
-	local drops = {}
 	local diggable = {}
 	local count = 0
 	local p = {}
@@ -93,23 +214,23 @@ local function power(player, pos, tool_type, max)
 			p.z = z
 			for x = minp.x, maxp.x do
 				p.x = x
-				local node = minetest.get_node_or_nil(p)
+				local p_node = minetest.get_node_or_nil(p)
 
-				if node then
-					if not diggable[node.name] then
-						diggable[node.name] = minetest.get_item_group(node.name, node_type) or 0
+				if p_node then
+					if not diggable[p_node.name] then
+						diggable[p_node.name] = minetest.get_item_group(p_node.name, node_type) or 0
 						if node_type == 'choppy' then
-							diggable[node.name] = diggable[node.name] + minetest.get_item_group(node.name, 'snappy') or 0
-							diggable[node.name] = diggable[node.name] + minetest.get_item_group(node.name, 'fleshy') or 0
+							diggable[p_node.name] = diggable[p_node.name] + minetest.get_item_group(p_node.name, 'snappy') or 0
+							diggable[p_node.name] = diggable[p_node.name] + minetest.get_item_group(p_node.name, 'fleshy') or 0
 						end
 
-						if node.name and node.name:find('^door') then
-							diggable[node.name] = 0
+						if p_node.name and p_node.name:find('^door') then
+							diggable[p_node.name] = 0
 						end
 					end
 
-					if count < max_nodes and diggable[node.name] > 0 then
-						minetest.node_dig(p, node, player)
+					if count < max_nodes and diggable[p_node.name] > 0 then
+						minetest.node_dig(p, p_node, player)
 						count = count + 1
 					end
 				end
@@ -187,7 +308,7 @@ minetest.register_tool(mod_name..':jackhammer', {
 		},
 		damage_groups = {fleshy=4},
 	},
-	on_use = function(itemstack, user, pointed_thing)
+	on_use = function(_, user, pointed_thing)
 		if not (user and pointed_thing) then
 			return
 		end
@@ -216,7 +337,7 @@ minetest.register_craft({
 	output = mod_name..':precision_component',
 	recipe = {
 		{'', '', ''},
-		{'default:steel_ingot', precision_tool, 'default:copper_ingot'},
+		{'default:steel_ingot', precision_tool, 'default:gold_ingot'},
 		{'', '', ''},
 	}
 })
@@ -297,22 +418,14 @@ local function flares(player)
 	pos.z = pos.z + dir.z * 10
 	pos = vector.round(pos)
 
-	local air = minetest.get_content_id('air')
-	local gas = minetest.get_content_id('fun_caves:inert_gas')
-	local water = minetest.get_content_id('default:water_source')
-	local flare_air = minetest.get_content_id(mod_name..':flare_air')
-	local flare_gas = minetest.get_content_id(mod_name..':flare_gas')
-	local flare_water = minetest.get_content_id(mod_name..':flare_water')
 	local vm = minetest.get_voxel_manip()
 	if not vm then
 		return
 	end
 
 	local r = 8
-	local minp = vector.subtract(pos, r)
-	local maxp = vector.add(pos, r)
 	local count = 0
-	for i = 1, 50 do
+	for _ = 1, 50 do
 		local fpos = {}
 		fpos.x = pos.x + math.random(2 * r + 1) - r - 1
 		fpos.y = pos.y + math.random(2 * r + 1) - r - 1
@@ -323,7 +436,7 @@ local function flares(player)
 			local timer = minetest.get_node_timer(fpos)
 			timer:set(math.random(60), 0)
 			count = count + 1
-		elseif n and n.name == 'fun_caves:inert_gas' then
+		elseif n and n.name == environ_mod..':inert_gas' then
 			minetest.set_node(fpos, {name=mod_name..':flare_gas'})
 			local timer = minetest.get_node_timer(fpos)
 			timer:set(math.random(60), 0)
@@ -343,7 +456,7 @@ end
 do
 	local newnode = clone_node('air')
 	newnode.light_source = 14
-	newnode.on_timer = function(pos, elapsed)
+	newnode.on_timer = function(pos)
 		minetest.remove_node(pos)
 	end
 	minetest.register_node(mod_name..':flare_air', newnode)
@@ -352,15 +465,15 @@ do
 	newnode.light_source = 14
 	newnode.liquid_alternative_flowing = mod_name..':flare_water'
 	newnode.liquid_alternative_source = mod_name..':flare_water'
-	newnode.on_timer = function(pos, elapsed)
+	newnode.on_timer = function(pos)
 		minetest.remove_node(pos)
 	end
 	minetest.register_node(mod_name..':flare_water', newnode)
 
-	if minetest.registered_items['fun_caves:inert_gas'] then
-		newnode = clone_node('fun_caves:inert_gas')
+	if minetest.registered_items[environ_mod..':inert_gas'] then
+		newnode = clone_node(environ_mod..':inert_gas')
 		newnode.light_source = 14
-		newnode.on_timer = function(pos, elapsed)
+		newnode.on_timer = function(pos)
 			minetest.remove_node(pos)
 		end
 		minetest.register_node(mod_name..':flare_gas', newnode)
@@ -378,25 +491,22 @@ minetest.register_tool(mod_name..':flare_gun', {
 		},
 		damage_groups = {fleshy=2},
 	},
-	on_use = function(itemstack, user, pointed_thing)
+	on_use = function(itemstack, user)
 		if not user then
 			return
 		end
 
-		--print(itemstack:get_wear())
-		if itemstack:get_wear() > 50000 then
-			local inv = user:get_inventory()
-			if inv then
-				if inv:contains_item('main', 'tnt:gunpowder') then
-					inv:remove_item('main', 'tnt:gunpowder')
-					itemstack:clear()
-					itemstack:add_item(mod_name..':flare_gun')
-				end
+		local wear = (flares(user) or 0) * 400
+
+		if itemstack:get_wear() + wear > 50000 then
+			if mod.use_inventory_items(user, { 'tnt:gunpowder', }) then
+				itemstack:clear()
+				itemstack:add_item(mod_name..':flare_gun')
 			end
+		else
+			itemstack:add_wear(wear)
 		end
 
-		local count = flares(user)
-		itemstack:add_wear(count * 400)
 		return itemstack
 	end,
 })
@@ -458,7 +568,7 @@ for length = 10, 50, 10 do
 		groups = {snappy = 2, oddly_breakable_by_hand = 3, flammable = 2},
 		legacy_wallmounted = true,
 		sounds = default.node_sound_leaves_defaults(),
-		after_place_node = function(pos, placer, itemstack, pointed_thing)
+		after_place_node = function(_, _, _, pointed_thing)
 			if not (pointed_thing and pointed_thing.above) then
 				return
 			end
@@ -482,8 +592,8 @@ for length = 10, 50, 10 do
 	})
 
 	if length > 10 then
-		rec = {}
-		for i = 10, length, 10 do
+		local rec = {}
+		for _ = 10, length, 10 do
 			rec[#rec+1] = mod_name..':rope_ladder_10'
 		end
 		minetest.register_craft({
@@ -517,9 +627,9 @@ minetest.register_node(mod_name..':rope_ladder_piece', {
 	on_destruct = rope_remove,
 })
 
-if minetest.registered_items['fun_caves:dry_fiber'] then
-	minetest.register_alias(mod_name..':dry_fiber', 'fun_caves:dry_fiber')
-	mod.which_dry_fiber = 'fun_caves'
+if minetest.registered_items[environ_mod..':dry_fiber'] then
+	minetest.register_alias(mod_name..':dry_fiber', environ_mod..':dry_fiber')
+	mod.which_dry_fiber = environ_mod
 else
 	local newnode = clone_node('farming:straw')
 	newnode.description = 'Dry Fiber'
@@ -532,10 +642,12 @@ else
 	})
 end
 
-newnode = clone_node('farming:straw')
-newnode.description = 'Bundle of Grass'
-newnode.tiles = {'farming_straw.png^[colorize:#00FF00:50'}
-minetest.register_node(mod_name..':bundle_of_grass', newnode)
+do
+	local newnode = clone_node('farming:straw')
+	newnode.description = 'Bundle of Grass'
+	newnode.tiles = {'farming_straw.png^[colorize:#00FF00:50'}
+	minetest.register_node(mod_name..':bundle_of_grass', newnode)
+end
 
 minetest.register_craft({
 	output = mod_name..':bundle_of_grass',
@@ -579,53 +691,75 @@ end
 -- Miscellaneous Recipes
 ------------------------------------------------
 
-minetest.clear_craft({
-	recipe = {
-		{'default:copper_ingot', 'default:copper_ingot', 'default:copper_ingot'},
-		{'default:copper_ingot', 'default:tin_ingot', 'default:copper_ingot'},
-		{'default:copper_ingot', 'default:copper_ingot', 'default:copper_ingot'},
-	}
-})
-minetest.register_craft({
-	type = 'shapeless',
-	output = 'default:bronze_ingot',
-	recipe = {
-		'default:tin_ingot',
+if remove_bronze then
+	-- Remove the crappy bronze stuff.
+	local bad_recipes = {
+		'default:bronze_ingot',
 		'default:copper_ingot',
-	},
-})
-
-minetest.register_craft({
-	type = 'shapeless',
-	output = 'farming:cotton',
-	recipe = {
-		'farming:string',
-	},
-})
-
-minetest.register_craft({
-	output = 'default:stick 2',
-	recipe = {
-		{'group:sapling'}
+		'default:tin_ingot',
+		'default:axe_bronze',
+		'default:pick_bronze',
+		'default:sword_bronze',
+		'default:shovel_bronze',
+		'default:bronzeblock',
+		'stairs:slab_bronzeblock',
+		'stairs:stair_bronzeblock',
+		'stairs:stair_inner_bronzeblock',
+		'stairs:stair_outer_bronzeblock',
 	}
-})
 
-minetest.register_craft({
-	output = 'default:stick 2',
-	recipe = {
-		{'default:cactus'}
-	}
-})
+	for _, rec in pairs(bad_recipes) do
+		local res = minetest.clear_craft({
+			output = rec,
+		})
+		if not res then
+			print(mod_name..': Can\'t clear '..rec..' recipe.')
+		end
+	end
 
-minetest.register_craft({
-	output = 'default:glass',
-	type = 'shapeless',
-	recipe = {
-		'xpanes:pane_flat',
-		'xpanes:pane_flat',
-		'xpanes:pane_flat',
-	}
-})
+	minetest.register_craft({
+		output = "binoculars:binoculars",
+		recipe = {
+			{"default:obsidian_glass", "", "default:obsidian_glass"},
+			{"default:steel_ingot", "default:steel_ingot", "default:steel_ingot"},
+			{"default:obsidian_glass", "", "default:obsidian_glass"},
+		}
+	})
+end
+
+do
+	minetest.register_craft({
+		type = 'shapeless',
+		output = 'farming:cotton',
+		recipe = {
+			'farming:string',
+		},
+	})
+
+	minetest.register_craft({
+		output = 'default:stick 2',
+		recipe = {
+			{'group:sapling'}
+		}
+	})
+
+	minetest.register_craft({
+		output = 'default:stick 2',
+		recipe = {
+			{'default:cactus'}
+		}
+	})
+
+	minetest.register_craft({
+		output = 'default:glass',
+		type = 'shapeless',
+		recipe = {
+			'xpanes:pane_flat',
+			'xpanes:pane_flat',
+			'xpanes:pane_flat',
+		}
+	})
+end
 
 ------------------------------------------------
 
@@ -717,7 +851,7 @@ do
 		end
 
 		minetest.override_item(n1..'_bottom', {
-			on_punch = function(pos, node, puncher, pointed_thing)
+			on_punch = function(pos, node, puncher)
 				if not (puncher and puncher:get_player_control().sneak) then
 					return
 				end
@@ -779,3 +913,92 @@ end
 
 
 dofile(mod.path .. '/wallhammer.lua')
+
+
+------------------------------------------------
+-- Flintlock Pistol
+------------------------------------------------
+
+
+minetest.register_tool(mod_name..':flintlock_pistol_unloaded', {
+	description = 'Flintlock Pistol (unloaded)',
+	drawtype = 'plantlike',
+	paramtype = 'light',
+	tiles = {'fun_tools_flintlock_pistol.png'},
+	inventory_image = 'fun_tools_flintlock_pistol.png',
+	groups = {dig_immediate = 3},
+	sounds = default.node_sound_metal_defaults(),
+	on_use = function(itemstack, user, pointed_thing)
+		if not (fast_load and user and pointed_thing) then
+			return
+		end
+
+		if mod.use_inventory_items(user, { 'tnt:gunpowder', mod_name..':gold_ball' }) then
+			itemstack:clear()
+			itemstack:add_item(mod_name..':flintlock_pistol_loaded')
+			return itemstack
+		end
+	end,
+})
+
+minetest.register_craftitem(mod_name..':gold_ball', {
+	description = 'Gold Ball',
+	inventory_image = 'fun_tools_gold_balls.png',
+	--groups = {dig_immediate = 3},
+})
+
+minetest.register_craft({
+	output = mod_name..':gold_ball 10',
+	type = 'cooking',
+	recipe = 'default:gold_ingot',
+	cooktime = 2,
+})
+
+minetest.register_craft({
+	output = mod_name..':flintlock_pistol_loaded',
+	type = 'shapeless',
+	recipe = {'tnt:gunpowder', mod_name..':gold_ball', mod_name..':flintlock_pistol_unloaded',},
+})
+
+minetest.register_craft({
+	output = mod_name..':flintlock_pistol_unloaded',
+	recipe = {
+		{'', '', ''},
+		{'default:steel_ingot', 'group:wood', 'default:flint'},
+		{'', '', precision_tool},
+	},
+})
+
+minetest.register_tool(mod_name..':flintlock_pistol_loaded', {
+	description = 'Flintlock Pistol (loaded)',
+	drawtype = 'plantlike',
+	paramtype = 'light',
+	tiles = {'fun_tools_flintlock_pistol.png'},
+	inventory_image = 'fun_tools_flintlock_pistol.png',
+	groups = {dig_immediate = 3},
+	sounds = default.node_sound_metal_defaults(),
+	tool_capabilities = {
+		full_punch_interval = 1.0,
+		max_drop_level=1,
+		groupcaps={
+			cracky = {times={[1]=4.00, [2]=1.60, [3]=0.80}, uses=80, maxlevel=2},
+		},
+		damage_groups = {fleshy=15},
+	},
+	on_use = function(itemstack, user, pointed_thing)
+		if not (user and pointed_thing) then
+			return
+		end
+
+		minetest.sound_play('flintlock', {
+			object = user,
+			gain = 0.1,
+			max_hear_distance = 30
+		})
+		mod.ranged_attack(itemstack, user, 15)
+
+		itemstack:clear()
+		itemstack:add_item(mod_name..':flintlock_pistol_unloaded')
+		return itemstack
+	end,
+})

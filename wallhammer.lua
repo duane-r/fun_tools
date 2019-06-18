@@ -7,9 +7,12 @@
 ---------------------------------------------------------------
 
 
-local USES = 100
+local mod = fun_tools_mod
+local mod_name = 'fun_tools'
+local environ_mod = mod.environ_mod
 
 local default_material = {}
+local USES = 100
 
 for _, i in pairs({
 	{'default:cobble', 'default_cobble', 'Cobble', {cracky = 3, not_in_creative_inventory=1}, nil},
@@ -18,10 +21,12 @@ for _, i in pairs({
 	{'default:desert_stone','default_desert_stone', 'Desert Stone', {cracky = 3, not_in_creative_inventory=1}, nil},
 	{'default:desert_cobble','default_desert_cobble', 'Desert Cobble', {cracky = 3, not_in_creative_inventory=1}, nil},
 	{'default:sandstone','default_sandstone', 'Sandstone', {cracky = 3, not_in_creative_inventory=1}, nil},
-	{'environ:stone_with_lichen','default_stone', 'Stone', {cracky = 3, not_in_creative_inventory=1}, 'default:cobble'},
-	{'environ:stone_with_algae','default_stone', 'Stone', {cracky = 3, not_in_creative_inventory=1}, 'default:cobble'},
-	{'environ:stone_with_moss','default_stone', 'Stone', {cracky = 3, not_in_creative_inventory=1}, 'default:cobble'},
-	{'environ:stone_with_salt','environ_salt', 'Stone', {cracky = 3, not_in_creative_inventory=1}, 'environ:stone_with_salt'},
+	{environ_mod..':stone_with_lichen','default_stone', 'Stone', {cracky = 3, not_in_creative_inventory=1}, 'default:cobble'},
+	{environ_mod..':stone_with_algae','default_stone', 'Stone', {cracky = 3, not_in_creative_inventory=1}, 'default:cobble'},
+	{environ_mod..':stone_with_moss','default_stone', 'Stone', {cracky = 3, not_in_creative_inventory=1}, 'default:cobble'},
+	{environ_mod..':stone_with_salt',environ_mod..'_salt', 'Stone', {cracky = 3, not_in_creative_inventory=1}, environ_mod..':stone_with_salt'},
+	{environ_mod..':basalt',environ_mod..'_basalt', 'Stone', {cracky = 1, not_in_creative_inventory=1}, nil},
+	{environ_mod..':granite',environ_mod..'_granite', 'Stone', {cracky = 1, not_in_creative_inventory=1}, nil},
 	--{'squaresville:concrete','default_stone', 'Stone', {cracky = 3, not_in_creative_inventory=1}, 'squaresville:concrete'},
 }) do
 if minetest.registered_items[i[1]] then
@@ -31,7 +36,7 @@ end
 --print(dump(default_material))
 
 
-local function parti(pos)
+local function particles(pos)
 	if not pos then
 		return
 	end
@@ -39,7 +44,7 @@ local function parti(pos)
 	minetest.add_particlespawner(25, 0.3, pos, pos, {x=2, y=0.2, z=2}, {x=-2, y=2, z=-2}, {x=0, y=-6, z=0}, {x=0, y=-10, z=0}, 0.2, 1, 0.2, 2, true, 'wallhammer_parti.png')
 end
 
-minetest.register_tool( 'fun_tools:wall_hammer',{
+minetest.register_tool( mod_name..':wall_hammer',{
 	description = 'Wall Hammer',
 	inventory_image = 'wallhammer_hammer.png',
 	wield_image = 'wallhammer_hammer.png',
@@ -65,33 +70,40 @@ minetest.register_tool( 'fun_tools:wall_hammer',{
 			return
 		end
 
-		local node = minetest.get_node(pos)
-		if not node then
+		local target_node = minetest.get_node(pos)
+		if not (
+			target_node and target_node.name
+			and minetest.registered_nodes[target_node.name]
+			and minetest.registered_nodes[target_node.name].groups
+			and minetest.registered_nodes[target_node.name].groups.cracky
+		) then
 			return
 		end
+
+		local hardness = 4 - tonumber(minetest.registered_nodes[target_node.name].groups.cracky)
 
 		for i in ipairs (default_material) do
 			local item = default_material [i][1]
 			local mat = default_material [i][2]
-			local desc = default_material [i][3]
+			--local desc = default_material [i][3]
 
 			if minetest.is_protected(pos, user:get_player_name()) then
 				minetest.record_protection_violation(pos, user:get_player_name())
 				return
 			end
 
-			if node.name == item then
-				local node = {
-					name = 'fun_tools:'..mat..'_foot',
+			if target_node.name == item then
+				local t_node = {
+					name = mod_name..':'..mat..'_foot',
 					param2=minetest.dir_to_facedir(user:get_look_dir())
 				}
-				minetest.set_node(pos, node)
-				parti(pos)
+				minetest.set_node(pos, t_node)
+				particles(pos)
 			end
 		end
 
 		if not minetest.setting_getbool('creative_mode') then
-			itemstack:add_wear(65535 / (USES - 1))
+			itemstack:add_wear((65535 / (USES - 1)) * hardness)
 		end
 
 		return itemstack
@@ -99,19 +111,19 @@ minetest.register_tool( 'fun_tools:wall_hammer',{
 })
 
 minetest.register_craft({
-	output = 'fun_tools:wall_hammer',
+	output = mod_name..':wall_hammer',
 	recipe = {
-		{'', fun_tools_mod.which_dry_fiber..':dry_fiber', ''},
+		{'', mod.which_dry_fiber..':dry_fiber', ''},
 		{'default:steel_ingot', 'default:steel_ingot', 'group:stick'},
-		{'', fun_tools_mod.which_dry_fiber..':dry_fiber', ''},
+		{'', mod.which_dry_fiber..':dry_fiber', ''},
 	},
 })
 
 minetest.register_craft({
-	output = 'fun_tools:wall_hammer',
+	output = mod_name..':wall_hammer',
 	type = 'shapeless',
 	recipe = {
-		'fun_tools:wall_hammer', 'default:steel_ingot',	
+		mod_name..':wall_hammer', 'default:steel_ingot',
 	},
 })
 
@@ -127,7 +139,7 @@ for i in ipairs (default_material) do
 		drop = item
 	end
 
-	minetest.register_node('fun_tools:'..mat..'_foot', {
+	minetest.register_node(mod_name..':'..mat..'_foot', {
 		description =  desc..' Foot Hold Block',
 		drawtype = 'nodebox',
 		tiles = {
