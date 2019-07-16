@@ -674,6 +674,15 @@ minetest.register_craft({
 })
 
 minetest.register_craft({
+	output = mod_name..':bundle_of_grass',
+	recipe = {
+		{'default:marram_grass_1', 'default:marram_grass_1', 'default:marram_grass_1', },
+		{'default:marram_grass_1', 'default:marram_grass_1', 'default:marram_grass_1', },
+		{'default:marram_grass_1', 'default:marram_grass_1', 'default:marram_grass_1', },
+	}
+})
+
+minetest.register_craft({
 	type = 'cooking',
 	output = mod.which_dry_fiber..':dry_fiber',
 	recipe = mod_name..':bundle_of_grass',
@@ -1001,7 +1010,7 @@ minetest.register_tool(mod_name..':flintlock_pistol_loaded', {
 			gain = 0.1,
 			max_hear_distance = 30
 		})
-		mod.ranged_attack(itemstack, user, 15)
+		mod.ranged_attack(itemstack, user, 25)
 
 		itemstack:clear()
 		itemstack:add_item(mod_name..':flintlock_pistol_unloaded')
@@ -1093,3 +1102,65 @@ minetest.register_craft({
 		{'default:gold_ingot', '', 'default:gold_ingot'},
 	},
 })
+
+do
+	local newnode = clone_node('default:leaves')
+	newnode.description = 'Magic Beanstalk'
+	newnode.walkable = false
+	newnode.climbable = true
+	minetest.register_node(mod_name..':magic_beanstalk', newnode)
+
+	local growable = {
+		['default:dirt'] = true,
+		['default:sand'] = true,
+		['air'] = true,
+		[mod_name..':magic_bean'] = true,
+	}
+	function mod.grow_beanstalk(pos)
+		print('Growing a beanstalk')
+		local n = minetest.get_node(pos)
+		if n.name == mod_name..':magic_bean' then
+			local p = table.copy(pos)
+			local ps = table.copy(p)
+			for y = pos.y - 1, pos.y + 80 do
+				p.y = y
+				ps.y = y
+				ps.x = pos.x + (y % 4 == 0 and 1 or 0) + (y % 4 == 2 and -1 or 0)
+				ps.z = pos.z + (y % 4 == 1 and 1 or 0) + (y % 4 == 3 and -1 or 0)
+				local np = minetest.get_node_or_nil(p)
+				if np and growable[np.name] then
+					minetest.set_node(p, {name = mod_name..':magic_beanstalk'})
+				end
+				local nps = minetest.get_node_or_nil(ps)
+				if nps and growable[nps.name] then
+					minetest.set_node(ps, {name = mod_name..':magic_beanstalk'})
+				end
+			end
+		end
+	end
+
+	minetest.register_node(mod_name..':magic_bean', {
+		description = 'Magic Bean',
+		drawtype = 'plantlike',
+		tiles = {'fun_tools_magic_bean.png'},
+		inventory_image = 'fun_tools_magic_bean.png',
+		wield_image = 'fun_tools_magic_bean.png',
+		paramtype = 'light',
+		sunlight_propagates = true,
+		walkable = false,
+		buildable_to = true,
+		on_timer = mod.grow_beanstalk,
+		selection_box = {
+			type = 'fixed',
+			fixed = {-4 / 16, -0.5, -4 / 16, 4 / 16, 2 / 16, 4 / 16}
+		},
+		groups = {snappy = 2, dig_immediate = 3, flammable = 2,
+			attached_node = 1, sapling = 1},
+		sounds = default.node_sound_leaves_defaults(),
+
+		on_construct = function(pos)
+			--minetest.get_node_timer(pos):start(math.random(300, 1500))
+			minetest.get_node_timer(pos):start(math.random(3, 15))
+		end,
+	})
+end
