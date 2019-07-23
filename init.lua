@@ -27,6 +27,11 @@ if remove_bronze == nil then
 	remove_bronze = true
 end
 
+local torchlight = minetest.setting_getbool('fun_tools_torchlight')
+if torchlight == nil then
+	torchlight = true
+end
+
 
 function mod.clone_node(name)
 	if not (name and type(name) == 'string') then
@@ -1115,6 +1120,10 @@ do
 		['default:sand'] = true,
 		['air'] = true,
 		[mod_name..':magic_bean'] = true,
+		['mapgen:cloud'] = true,
+		['mapgen:wet_cloud'] = true,
+		['mapgen:storm_cloud'] = true,
+		['mapgen:wispy_cloud'] = true,
 	}
 	function mod.grow_beanstalk(pos)
 		print('Growing a beanstalk')
@@ -1163,3 +1172,118 @@ do
 		end,
 	})
 end
+
+do
+	minetest.register_craftitem(mod_name..':charcoal', {
+		description = 'Charcoal Briquette',
+		inventory_image = 'default_coal_lump.png',
+		groups = {coal = 1}
+	})
+
+	minetest.register_craft({
+		type = 'fuel',
+		recipe = mod_name..':charcoal',
+		burntime = 50,
+	})
+
+	minetest.register_craft({
+		type = 'cooking',
+		output = mod_name..':charcoal',
+		recipe = 'group:tree',
+	})
+
+	minetest.register_craft({
+		output = 'default:torch 4',
+		recipe = {
+			{'group:coal'},
+			{'group:stick'},
+		}
+	})
+
+	minetest.register_craft({
+		output = 'default:coalblock',
+		recipe = {
+			{'group:coal', 'group:coal', 'group:coal'},
+			{'group:coal', 'group:coal', 'group:coal'},
+			{'group:coal', 'group:coal', 'group:coal'},
+		}
+	})
+
+	if minetest.get_modpath('tnt') then
+		minetest.register_craft({
+			output = 'tnt:gunpowder',
+			type = 'shapeless',
+			recipe = {'group:coal', 'default:gravel'}
+		})
+	end
+end
+
+
+if torchlight then
+	local torch_burn_time = {}
+	local last_torch_check
+	minetest.register_globalstep(function(dtime)
+		if not (dtime and type(dtime) == 'number') then
+			return
+		end
+
+		local time = minetest.get_gametime()
+		if not (time and type(time) == 'number') then
+			return
+		end
+
+		-- Trap check
+		if last_torch_check and time - last_torch_check < 2 then
+			return
+		end
+
+		local players = minetest.get_connected_players()
+		if not (players and type(players) == 'table') then
+			return
+		end
+
+		for i = 1, #players do
+			local player = players[i]
+			local item = player:get_wielded_item()
+			if not item:get_name():find('torch') then
+				return
+			end
+
+			local pos = player:getpos()
+			pos = vector.round(pos)
+			pos.y = pos.y + 1
+
+			local l = minetest.get_node_light(pos, nil)
+			if l > 13 then
+				return
+			end
+
+			local n = minetest.get_node_or_nil(pos)
+			if n and n.name == 'air' then
+				local player_name = player:get_player_name()
+				torch_burn_time[player_name] = (torch_burn_time[player_name] or 0) + 1
+
+				minetest.set_node(pos, { name = mod_name..':flare_air' })
+				local timer = minetest.get_node_timer(pos)
+				timer:start(2)
+
+				if torch_burn_time[player_name] > 300 then
+					item:take_item(1)
+					player:set_wielded_item(item)
+					torch_burn_time[player_name] = 0
+				end
+			end
+		end
+	end)
+end
+
+
+--[[
+minetest.register_lbm({
+	name = mod_name..':flare_killer',
+	nodenames = { mod_name..':flare_air' },
+	action = function(pos, node)
+		minetest.remove_node(pos)
+	end,
+})
+--]]
