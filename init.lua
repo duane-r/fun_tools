@@ -1253,7 +1253,7 @@ if torchlight then
 			pos = vector.round(pos)
 			pos.y = pos.y + 1
 
-			local l = minetest.get_node_light(pos, nil)
+			local l = minetest.get_node_light(pos, nil) or 15
 			if l > 13 then
 				return
 			end
