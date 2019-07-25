@@ -672,9 +672,9 @@ minetest.register_craft({
 minetest.register_craft({
 	output = mod_name..':bundle_of_grass',
 	recipe = {
-		{'default:grass_1', 'default:grass_1', 'default:grass_1', },
-		{'default:grass_1', 'default:grass_1', 'default:grass_1', },
-		{'default:grass_1', 'default:grass_1', 'default:grass_1', },
+		{'group:grass', '', 'group:grass', },
+		{'group:grass', 'group:grass', 'group:grass', },
+		{'group:grass', '', 'group:grass', },
 	}
 })
 
