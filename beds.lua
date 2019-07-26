@@ -48,6 +48,14 @@ minetest.register_craft({
 minetest.register_craft({
 	output = mod_name..':nest',
 	recipe = {
+		{'default:blueberry_bush_leaves', 'default:blueberry_bush_leaves',},
+		{'default:blueberry_bush_leaves', 'default:blueberry_bush_leaves',},
+	}
+})
+
+minetest.register_craft({
+	output = mod_name..':nest',
+	recipe = {
 		{'default:acacia_leaves', 'default:acacia_leaves',},
 		{'default:acacia_leaves', 'default:acacia_leaves',},
 	}
