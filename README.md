@@ -84,9 +84,9 @@ This is a work in progress.
 The source is available on github.
 
 Code: LGPL2
-Textures: CC0
+Textures: CC0 and CC3
 Sounds: CC0
 
-Mod dependencies: default, inspire?, elixirs?, tnt?
+Mod dependencies: default, elixirs?, tnt?
 
 Download: https://github.com/duane-r/fun_tools/archive/master.zip

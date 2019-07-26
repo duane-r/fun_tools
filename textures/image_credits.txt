@@ -7,5 +7,11 @@ Wallhammer images by the eminent DonBatman (DWYWPL),
 https://forum.minetest.net/viewtopic.php?f=11&t=13484&hilit=masonry+hammer
 
 
+All more_fire textures are taken from more_fire (https://github.com/NathanSalapat/more_fire/tree/dev) by NathanSalapat and others, and are distributed as CC-BY-SA (http://creativecommons.org/licenses/by-sa/3.0/).
+
+
+The bucket textures were adapted from the Minetest Game's bucket mod.
+
+
 All other images were created by me from public domain images,
 and are distributed as CC0 (public domain).

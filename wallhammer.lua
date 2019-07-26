@@ -7,7 +7,7 @@
 ---------------------------------------------------------------
 
 
-local mod = fun_tools_mod
+local mod = fun_tools
 local mod_name = 'fun_tools'
 local environ_mod = mod.environ_mod
 
@@ -113,9 +113,9 @@ minetest.register_tool( mod_name..':wall_hammer',{
 minetest.register_craft({
 	output = mod_name..':wall_hammer',
 	recipe = {
-		{'', mod.which_dry_fiber..':dry_fiber', ''},
+		{'', mod_name..':dry_fiber', ''},
 		{'default:steel_ingot', 'default:steel_ingot', 'group:stick'},
-		{'', mod.which_dry_fiber..':dry_fiber', ''},
+		{'', mod_name..':dry_fiber', ''},
 	},
 })
 

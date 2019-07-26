@@ -1,0 +1,157 @@
+Combine the following to produce Coal Block:
+  group:coal, group:coal, group:coal
+  group:coal, group:coal, group:coal
+  group:coal, group:coal, group:coal
+
+Combine Glass Pane, Glass Pane, Glass Pane to produce Glass.
+
+Combine the following to produce Stick:
+  group:sapling
+
+Combine the following to produce Stick:
+  Cactus
+
+Combine the following to produce Torch:
+  group:coal
+  group:stick
+
+Combine String to produce Cotton.
+
+Combine the following to produce Body Pillow:
+  [empty], String, [empty]
+  dye:red, dye:yellow, dye:blue
+  Cotton, group:wool, Cotton
+
+Combine the following to produce Body Pillow:
+  [empty], String, [empty]
+  dye:red, dye:yellow, dye:blue
+  Cotton, group:wool, Cotton
+
+Combine the following to produce Bucket of Naptha:
+  Bottle of Naptha, Bottle of Naptha, Bottle of Naptha
+  Bottle of Naptha, Empty Bucket, Bottle of Naptha
+  Bottle of Naptha, Bottle of Naptha, Bottle of Naptha
+
+Combine Jungle Grass, Jungle Grass, Jungle Grass, Jungle Grass to produce Bundle of Grass.
+
+Combine the following to produce Bundle of Grass:
+  group:grass, [empty], group:grass
+  group:grass, group:grass, group:grass
+  group:grass, [empty], group:grass
+
+Combine the following to produce Bundle of Grass:
+  Marram Grass, Marram Grass, Marram Grass
+  Marram Grass, Marram Grass, Marram Grass
+  Marram Grass, Marram Grass, Marram Grass
+
+Combine the following to produce Chainsaw:
+  [empty], Bucket of Naptha, [empty]
+  [empty], Chainsaw, [empty]
+  [empty], Precision Component, [empty]
+
+Combine the following to produce Chainsaw:
+  [empty], Mese Crystal, [empty]
+  [empty], Internal Combustion Engine, [empty]
+  Precision Component, Bucket of Naptha, Precision Component
+
+Cook group:tree to produce Charcoal Briquette.
+
+Cook Bundle of Grass to produce Dry Fiber.
+
+Combine the following to produce Flare Gun:
+  [empty], [empty], [empty]
+  Steel Ingot, Steel Ingot, Steel Ingot
+  [empty], Gun Powder, group:stick
+
+Combine Flare Gun, Gun Powder to produce Flare Gun.
+
+Combine Gun Powder, Gold Ball, Flintlock Pistol (unloaded) to produce Flintlock Pistol (loaded).
+
+Combine the following to produce Flintlock Pistol (unloaded):
+  [empty], [empty], [empty]
+  Steel Ingot, group:wood, Flint
+  [empty], [empty], Diamond
+
+Cook Gold Ingot to produce fun_tools:gold_ball 10.
+
+Combine the following to produce Golden Tesseract:
+  Gold Ingot, [empty], Gold Ingot
+  [empty], Mese Crystal, [empty]
+  Gold Ingot, [empty], Gold Ingot
+
+Combine Cotton, Empty Heavy Steel Bottle, Gun Powder to produce Grenado.
+
+Combine the following to produce Jackhammer:
+  Precision Component, Bucket of Naptha, Precision Component
+  [empty], Internal Combustion Engine, [empty]
+  [empty], Mese Crystal, [empty]
+
+Combine Empty Glass Bottle, group:coal to produce Bottle of Naptha.
+
+
+Combine the following to produce Internal Combustion Engine:
+  [empty], Precision Component, [empty]
+  Precision Component, Steel Block, Precision Component
+  [empty], Precision Component, [empty]
+
+Combine the following to produce Jackhammer:
+  [empty], Bucket of Naptha, [empty]
+  [empty], Jackhammer, [empty]
+  [empty], Precision Component, [empty]
+
+Combine Cotton, Bottle of Naptha to produce Molotov Cocktail.
+
+Combine the following to produce Nest of Leaves:
+  Apple Tree Leaves, Apple Tree Leaves
+  Apple Tree Leaves, Apple Tree Leaves
+
+Combine the following to produce Nest of Leaves:
+  Bush Leaves, Bush Leaves
+  Bush Leaves, Bush Leaves
+
+Combine the following to produce Nest of Leaves:
+  Acacia Bush Leaves, Acacia Bush Leaves
+  Acacia Bush Leaves, Acacia Bush Leaves
+
+Combine the following to produce Nest of Leaves:
+  Pine Needles, Pine Needles
+  Pine Needles, Pine Needles
+
+Combine the following to produce Nest of Leaves:
+  Acacia Tree Leaves, Acacia Tree Leaves
+  Acacia Tree Leaves, Acacia Tree Leaves
+
+Combine the following to produce Precision Component:
+  [empty], [empty], [empty]
+  Steel Ingot, Diamond, Gold Ingot
+  [empty], [empty], [empty]
+
+Combine the following to produce Rope Ladder (10 meter):
+  Dry Fiber, [empty], Dry Fiber
+  Dry Fiber, Dry Fiber, Dry Fiber
+  Dry Fiber, [empty], Dry Fiber
+
+Combine the following to produce Wall Hammer:
+  [empty], Dry Fiber, [empty]
+  Steel Ingot, Steel Ingot, group:stick
+  [empty], Dry Fiber, [empty]
+
+Combine the following to produce Wooden Bucket of Naptha:
+  Bottle of Naptha, Bottle of Naptha, Bottle of Naptha
+  Bottle of Naptha, Empty Wooden Bucket, Bottle of Naptha
+  Bottle of Naptha, Bottle of Naptha, Bottle of Naptha
+
+
+Combine Rope Ladder (10 meter), Rope Ladder (10 meter), Rope Ladder (10 meter), Rope Ladder (10 meter) to produce Rope Ladder (40 meter).
+
+
+Combine Rope Ladder (10 meter), Rope Ladder (10 meter), Rope Ladder (10 meter), Rope Ladder (10 meter), Rope Ladder (10 meter) to produce Rope Ladder (50 meter).
+
+Combine group:coal, Gravel to produce Gun Powder.
+
+
+Combine Rope Ladder (10 meter), Rope Ladder (10 meter) to produce Rope Ladder (20 meter).
+
+Combine Rope Ladder (10 meter), Rope Ladder (10 meter), Rope Ladder (10 meter) to produce Rope Ladder (30 meter).
+
+Combine Wall Hammer, Steel Ingot to produce Wall Hammer.
