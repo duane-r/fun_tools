@@ -6,6 +6,25 @@ local mod = fun_tools
 local mod_name = 'fun_tools'
 
 
+if minetest.registered_items['nmobs:slime_ball'] then
+	mod.magic_ingredient = 'nmobs:slime_ball'
+elseif minetest.registered_items['mobs_slimes:green_slimeball'] then
+	mod.magic_ingredient = 'mobs_slimes:green_slimeball'
+else
+	minetest.register_craftitem(mod_name..':magic_placeholder', {
+		description = 'Magic Ingredient',
+		drawtype = 'plantlike',
+		paramtype = 'light',
+		tiles = { 'elixirs_elixir.png' },
+		inventory_image = 'elixirs_elixir.png',
+		groups = { dig_immediate = 3, vessel = 1 },
+		sounds = default.node_sound_glass_defaults(),
+	})
+
+	mod.magic_ingredient = mod_name..':magic_placeholder'
+end
+
+
 ------------------------------------------------
 -- Naptha and Molotails
 ------------------------------------------------
