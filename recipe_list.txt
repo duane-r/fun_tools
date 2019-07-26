@@ -5,6 +5,10 @@ Combine the following to produce Coal Block:
 
 Combine Glass Pane, Glass Pane, Glass Pane to produce Glass.
 
+Combine Cotton, Cotton, Cotton to produce Paper.
+
+Combine group:wood, group:stone, Slime Ball to produce Paper.
+
 Combine the following to produce Stick:
   group:sapling
 
@@ -16,11 +20,6 @@ Combine the following to produce Torch:
   group:stick
 
 Combine String to produce Cotton.
-
-Combine the following to produce Body Pillow:
-  [empty], String, [empty]
-  dye:red, dye:yellow, dye:blue
-  Cotton, group:wool, Cotton
 
 Combine the following to produce Body Pillow:
   [empty], String, [empty]
@@ -86,7 +85,7 @@ Combine the following to produce Jackhammer:
   [empty], Internal Combustion Engine, [empty]
   [empty], Mese Crystal, [empty]
 
-Combine Empty Glass Bottle, group:coal to produce Bottle of Naptha.
+Combine Empty Glass Bottle, group:coal, Slime Ball to produce Bottle of Naptha.
 
 
 Combine the following to produce Internal Combustion Engine:
@@ -101,6 +100,8 @@ Combine the following to produce Jackhammer:
 
 Combine Cotton, Bottle of Naptha to produce Molotov Cocktail.
 
+Combine Glass, Glowing Fungus, Slime Ball to produce Moon Glass.
+
 Combine the following to produce Nest of Leaves:
   Apple Tree Leaves, Apple Tree Leaves
   Apple Tree Leaves, Apple Tree Leaves
@@ -110,16 +111,22 @@ Combine the following to produce Nest of Leaves:
   Bush Leaves, Bush Leaves
 
 Combine the following to produce Nest of Leaves:
-  Acacia Bush Leaves, Acacia Bush Leaves
-  Acacia Bush Leaves, Acacia Bush Leaves
-
-Combine the following to produce Nest of Leaves:
   Pine Needles, Pine Needles
   Pine Needles, Pine Needles
 
 Combine the following to produce Nest of Leaves:
   Acacia Tree Leaves, Acacia Tree Leaves
   Acacia Tree Leaves, Acacia Tree Leaves
+
+Combine the following to produce Nest of Leaves:
+  Acacia Bush Leaves, Acacia Bush Leaves
+  Acacia Bush Leaves, Acacia Bush Leaves
+
+Combine Slime Ball, dye:red, dye:red, group:buckets to produce fun_tools:paint_desert_stone 20.
+
+Combine Slime Ball, dye:white, dye:white, group:buckets to produce fun_tools:paint_sandstone 20.
+
+Combine Slime Ball, dye:grey, dye:grey, group:buckets to produce fun_tools:paint_stone 20.
 
 Combine the following to produce Precision Component:
   [empty], [empty], [empty]
@@ -131,27 +138,27 @@ Combine the following to produce Rope Ladder (10 meter):
   Dry Fiber, Dry Fiber, Dry Fiber
   Dry Fiber, [empty], Dry Fiber
 
+Combine Rope Ladder (10 meter), Rope Ladder (10 meter) to produce Rope Ladder (20 meter).
+
+Combine Rope Ladder (10 meter), Rope Ladder (10 meter), Rope Ladder (10 meter) to produce Rope Ladder (30 meter).
+
+
+Combine Rope Ladder (10 meter), Rope Ladder (10 meter), Rope Ladder (10 meter), Rope Ladder (10 meter) to produce Rope Ladder (40 meter).
+
+Combine Rope Ladder (10 meter), Rope Ladder (10 meter), Rope Ladder (10 meter), Rope Ladder (10 meter), Rope Ladder (10 meter) to produce Rope Ladder (50 meter).
+
 Combine the following to produce Wall Hammer:
   [empty], Dry Fiber, [empty]
   Steel Ingot, Steel Ingot, group:stick
   [empty], Dry Fiber, [empty]
+
+
+Combine Wall Hammer, Steel Ingot to produce Wall Hammer.
+
 
 Combine the following to produce Wooden Bucket of Naptha:
   Bottle of Naptha, Bottle of Naptha, Bottle of Naptha
   Bottle of Naptha, Empty Wooden Bucket, Bottle of Naptha
   Bottle of Naptha, Bottle of Naptha, Bottle of Naptha
 
-
-Combine Rope Ladder (10 meter), Rope Ladder (10 meter), Rope Ladder (10 meter), Rope Ladder (10 meter) to produce Rope Ladder (40 meter).
-
-
-Combine Rope Ladder (10 meter), Rope Ladder (10 meter), Rope Ladder (10 meter), Rope Ladder (10 meter), Rope Ladder (10 meter) to produce Rope Ladder (50 meter).
-
 Combine group:coal, Gravel to produce Gun Powder.
-
-
-Combine Rope Ladder (10 meter), Rope Ladder (10 meter) to produce Rope Ladder (20 meter).
-
-Combine Rope Ladder (10 meter), Rope Ladder (10 meter), Rope Ladder (10 meter) to produce Rope Ladder (30 meter).
-
-Combine Wall Hammer, Steel Ingot to produce Wall Hammer.

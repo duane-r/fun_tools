@@ -21,7 +21,7 @@ mod.torchlight = minetest.setting_getbool('fun_tools_torchlight')
 -- These all default to enabled... because I say.
 for _, k in pairs({'fast_load', 'remove_bronze', 'torchlight', }) do
 	if mod[k] == nil then
-		mod.fast_load = true
+		mod[k] = true
 	end
 end
 
@@ -67,6 +67,7 @@ dofile(mod.path .. '/bombs.lua')
 dofile(mod.path .. '/game.lua')
 dofile(mod.path .. '/guns.lua')
 dofile(mod.path .. '/lighting.lua')
+dofile(mod.path .. '/paint.lua')
 dofile(mod.path .. '/power_tools.lua')
 dofile(mod.path .. '/rope.lua')
 dofile(mod.path .. '/travel.lua')

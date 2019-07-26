@@ -28,7 +28,9 @@ local function rope_remove(pos)
 end
 
 local good_params = {nil, true, true, true, true}
-for length = 10, 50, 10 do
+-- After taking out the underground fiber sources, it's too
+--  hard to gather to bother with short ropes.
+for length = 50, 50, 10 do
 	minetest.register_node(mod_name..':rope_ladder_'..length, {
 		description = 'Rope Ladder ('..length..' meter)',
 		drawtype = 'signlike',
@@ -70,6 +72,7 @@ for length = 10, 50, 10 do
 		on_destruct = rope_remove,
 	})
 
+	--[[
 	if length > 10 then
 		local rec = {}
 		for _ = 10, length, 10 do
@@ -81,6 +84,7 @@ for length = 10, 50, 10 do
 			recipe = rec,
 		})
 	end
+	--]]
 end
 
 minetest.register_node(mod_name..':rope_ladder_piece', {
@@ -146,9 +150,18 @@ minetest.register_craft({
 minetest.register_craft({
 	output = mod_name..':bundle_of_grass',
 	recipe = {
+		{'group:dry_grass', '', 'group:dry_grass', },
+		{'group:dry_grass', 'group:dry_grass', 'group:dry_grass', },
+		{'group:dry_grass', '', 'group:dry_grass', },
+	}
+})
+
+minetest.register_craft({
+	output = mod_name..':bundle_of_grass',
+	recipe = {
+		{'default:marram_grass_1', '', 'default:marram_grass_1', },
 		{'default:marram_grass_1', 'default:marram_grass_1', 'default:marram_grass_1', },
-		{'default:marram_grass_1', 'default:marram_grass_1', 'default:marram_grass_1', },
-		{'default:marram_grass_1', 'default:marram_grass_1', 'default:marram_grass_1', },
+		{'default:marram_grass_1', '', 'default:marram_grass_1', },
 	}
 })
 
@@ -162,7 +175,7 @@ minetest.register_craft({
 do
 	local fib = mod_name..':dry_fiber'
 	minetest.register_craft({
-		output = mod_name..':rope_ladder_10',
+		output = mod_name..':rope_ladder_50',
 		recipe = {
 			{fib, '', fib},
 			{fib, fib, fib},

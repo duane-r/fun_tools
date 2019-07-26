@@ -79,6 +79,18 @@ do
 			'xpanes:pane_flat',
 		}
 	})
+
+	minetest.register_craft({
+		output = 'default:paper',
+		type = 'shapeless',
+		recipe = { 'farming:cotton', 'farming:cotton', 'farming:cotton' }
+	})
+
+	minetest.register_craft({
+		output = 'default:paper',
+		type = 'shapeless',
+		recipe = { 'group:wood', 'group:stone', mod.magic_ingredient }
+	})
 end
 
 
@@ -125,4 +137,19 @@ do
 			recipe = {'group:coal', 'default:gravel'}
 		})
 	end
+end
+
+
+-- This is hard to place, so I'm putting it here.
+if minetest.get_modpath('mapgen') then
+	local cnode = mod.clone_node('default:glass')
+	cnode.description = 'Moon Glass'
+	cnode.light_source = 14
+	minetest.register_node(mod_name..':moon_glass', cnode)
+
+	minetest.register_craft({
+		output = mod_name..':moon_glass',
+		type = 'shapeless',
+		recipe = { 'default:glass', 'mapgen:glowing_fungus', mod.magic_ingredient },
+	})
 end
