@@ -13,14 +13,16 @@ local mod_name = 'fun_tools'
 if mod.remove_bronze then
 	-- Remove the crappy bronze stuff.
 	local bad_recipes = {
+		'binoculars:binoculars',
+		'default:axe_bronze',
+		'default:bronzeblock',
 		'default:bronze_ingot',
 		'default:copper_ingot',
-		'default:tin_ingot',
-		'default:axe_bronze',
 		'default:pick_bronze',
-		'default:sword_bronze',
 		'default:shovel_bronze',
-		'default:bronzeblock',
+		'default:sword_bronze',
+		'default:tinblock',
+		'default:tin_ingot',
 		'stairs:slab_bronzeblock',
 		'stairs:stair_bronzeblock',
 		'stairs:stair_inner_bronzeblock',
@@ -95,6 +97,21 @@ end
 
 
 do
+	local bad_recipes = {
+		'default:torch',
+		'default:coalblock',
+		'tnt:gunpowder',
+	}
+
+	for _, rec in pairs(bad_recipes) do
+		local res = minetest.clear_craft({
+			output = rec,
+		})
+		if not res then
+			print(mod_name..': Can\'t clear '..rec..' recipe.')
+		end
+	end
+
 	minetest.register_craftitem(mod_name..':charcoal', {
 		description = 'Charcoal Briquette',
 		inventory_image = 'default_coal_lump.png',
