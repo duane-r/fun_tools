@@ -21,10 +21,12 @@ local function flares(player)
 	pos.z = pos.z + dir.z * 10
 	pos = vector.round(pos)
 
+	--[[
 	local vm = minetest.get_voxel_manip()
 	if not vm then
 		return
 	end
+	--]]
 
 	local r = 8
 	local count = 0
@@ -81,6 +83,68 @@ do
 		end
 		minetest.register_node(mod_name..':flare_gas', newnode)
 	end
+
+	local incendiary_nodebox = {
+		type = 'fixed',
+		fixed = {
+			{ -0.25, -0.5, -0.25, 0.25, 0.5, 0.25 },
+		}
+	}
+
+	minetest.register_node(mod_name..':incendiary', {
+		description = 'Incendiary Device',
+		drawtype = 'nodebox',
+		node_box = incendiary_nodebox,
+		paramtype2 = 'facedir',
+		place_param2 = 0,
+		tiles = {  'fun_tools_incendiary_top.png', 'fun_tools_incendiary_top.png',  'fun_tools_incendiary_side.png' },
+		groups = {choppy = 2, oddly_breakable_by_hand = 2, flammable = 2},
+		sounds = default.node_sound_wood_defaults(),
+		on_punch = function(pos, node, player, pointed_thing)
+			local item = player:get_wielded_item()
+			if not item:get_name():find('torch') then
+				return
+			end
+
+			minetest.set_node(pos, { name = 'fire:basic_flame' })
+
+			for z = -50, 50, 5 do
+				for y = -50, 50, 5 do
+					for x = -50, 50, 5 do
+						local fpos = vector.new(pos.x + x, pos.y + y, pos.z + z)
+						local n = minetest.get_node_or_nil(fpos)
+						if n and n.name == 'air' then
+							minetest.set_node(fpos, {name=mod_name..':flare_air'})
+							local timer = minetest.get_node_timer(fpos)
+							timer:set(math.random(60), 0)
+						elseif n and n.name == mod.environ_mod..':inert_gas' then
+							minetest.set_node(fpos, {name=mod_name..':flare_gas'})
+							local timer = minetest.get_node_timer(fpos)
+							timer:set(math.random(60), 0)
+						elseif n and n.name == 'default:water_source' then
+							minetest.set_node(fpos, {name=mod_name..':flare_water'})
+							local timer = minetest.get_node_timer(fpos)
+							timer:set(math.random(60), 0)
+						end
+					end
+				end
+			end
+		end,
+	})
+
+	local inc_element = 'default:steel_ingot'
+	if minetest.registered_items['nmobs:bonedust'] then
+		inc_element = 'nmobs:bonedust'
+	end
+
+	minetest.register_craft({
+		output = mod_name..':incendiary',
+		recipe = {
+			{'', inc_element, ''},
+			{'', 'tnt:gunpowder', ''},
+			{'default:paper', 'tnt:gunpowder', 'default:paper'},
+		}
+	})
 end
 
 minetest.register_tool(mod_name..':flare_gun', {
