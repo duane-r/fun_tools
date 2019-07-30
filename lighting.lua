@@ -99,7 +99,7 @@ minetest.register_tool(mod_name..':flare_gun', {
 			return
 		end
 
-		local wear = (flares(user) or 0) * 400
+		local wear = (flares(user) or 0) * 200
 
 		if itemstack:get_wear() + wear > 50000 then
 			itemstack:clear()
