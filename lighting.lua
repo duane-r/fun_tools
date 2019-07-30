@@ -102,8 +102,8 @@ minetest.register_tool(mod_name..':flare_gun', {
 		local wear = (flares(user) or 0) * 400
 
 		if itemstack:get_wear() + wear > 50000 then
+			itemstack:clear()
 			if mod.use_inventory_items(user, { 'tnt:gunpowder', }) then
-				itemstack:clear()
 				itemstack:add_item(mod_name..':flare_gun')
 			end
 		else
