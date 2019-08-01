@@ -69,6 +69,14 @@ minetest.register_craft({
 	}
 })
 
+minetest.register_craft({
+	output = mod_name..':nest',
+	recipe = {
+		{'default:dry_shrub', 'default:dry_shrub',},
+		{'default:dry_shrub', 'default:dry_shrub',},
+	}
+})
+
 
 ------------------------------------------------
 -- Body Pillow
