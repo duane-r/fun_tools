@@ -201,24 +201,18 @@ minetest.register_craft({
 ------------------------------------------------
 
 
+local torches = {
+	[ 'default:torch' ] = 300,
+	[ 'default:meselamp' ] = true,
+	[ 'default:pick_mese' ] = true,
+	[ 'default:sword_mese' ] = true,
+	[ 'dinv:ring_of_light' ] = true,
+}
+
+
 if mod.torchlight then
 	local torch_burn_time = {}
-	local last_torch_check
 	minetest.register_globalstep(function(dtime)
-		if not (dtime and type(dtime) == 'number') then
-			return
-		end
-
-		local time = minetest.get_gametime()
-		if not (time and type(time) == 'number') then
-			return
-		end
-
-		-- Trap check
-		if last_torch_check and time - last_torch_check < 2 then
-			return
-		end
-
 		local players = minetest.get_connected_players()
 		if not (players and type(players) == 'table') then
 			return
@@ -226,10 +220,6 @@ if mod.torchlight then
 
 		for i = 1, #players do
 			local player = players[i]
-			local item = player:get_wielded_item()
-			if not item:get_name():find('torch') then
-				return
-			end
 
 			local pos = player:getpos()
 			pos = vector.round(pos)
@@ -240,19 +230,29 @@ if mod.torchlight then
 				return
 			end
 
+			local item = player:get_wielded_item()
+			local item_n = item:get_name()
+			local torch_time = torches[item_n]
+			if not torch_time then
+				return
+			end
+
 			local n = minetest.get_node_or_nil(pos)
 			if n and n.name == 'air' then
 				local player_name = player:get_player_name()
-				torch_burn_time[player_name] = (torch_burn_time[player_name] or 0) + 1
 
 				minetest.set_node(pos, { name = mod_name..':flare_air' })
 				local timer = minetest.get_node_timer(pos)
 				timer:start(2)
 
-				if torch_burn_time[player_name] > 300 then
-					item:take_item(1)
-					player:set_wielded_item(item)
-					torch_burn_time[player_name] = 0
+				if torch_time ~= true then
+					torch_burn_time[player_name] = (torch_burn_time[player_name] or 0) + 1
+
+					if torch_burn_time[player_name] > torch_time then
+						item:take_item(1)
+						player:set_wielded_item(item)
+						torch_burn_time[player_name] = 0
+					end
 				end
 			end
 		end
