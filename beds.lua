@@ -48,6 +48,14 @@ minetest.register_craft({
 minetest.register_craft({
 	output = mod_name..':nest',
 	recipe = {
+		{'default:pine_bush_needles', 'default:pine_bush_needles',},
+		{'default:pine_bush_needles', 'default:pine_bush_needles',},
+	}
+})
+
+minetest.register_craft({
+	output = mod_name..':nest',
+	recipe = {
 		{'default:blueberry_bush_leaves', 'default:blueberry_bush_leaves',},
 		{'default:blueberry_bush_leaves', 'default:blueberry_bush_leaves',},
 	}
@@ -66,6 +74,14 @@ minetest.register_craft({
 	recipe = {
 		{'default:acacia_bush_leaves', 'default:acacia_bush_leaves',},
 		{'default:acacia_bush_leaves', 'default:acacia_bush_leaves',},
+	}
+})
+
+minetest.register_craft({
+	output = mod_name..':nest',
+	recipe = {
+		{'mapgen:leaves_oak', 'mapgen:leaves_oak',},
+		{'mapgen:leaves_oak', 'mapgen:leaves_oak',},
 	}
 })
 
