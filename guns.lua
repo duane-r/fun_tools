@@ -131,6 +131,8 @@ minetest.register_tool(mod_name..':mattock', {
 				minetest.set_node(pointed_thing.under, {
 					name = 'default:cobble',
 				})
+			else
+				minetest.node_dig(pointed_thing.under, n, user)
 			end
 		elseif pointed_thing.type == 'object' then
 			pointed_thing.ref:punch(user, nil, itemstack:get_tool_capabilities(), nil)
