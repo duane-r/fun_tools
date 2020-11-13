@@ -49,16 +49,18 @@ end
 function mod.ranged_attack(itemstack, user, range)
 	local shot
 	local dir = user:get_look_dir()
-	local playerpos = user:getpos()
+	local playerpos = user:get_pos()
 	local p = table.copy(playerpos)
 	p.y = p.y + 1.5
 
 	local eps = {}
 	for id, ent in pairs(minetest.luaentities) do
-		if ent and ent.object and ent.object.get_pos and (ent._is_a_mob or ent.health) then
-			local ep = ent.object:get_pos()
-			if vector.distance(ep, p) < range then
-				eps[id] = ep
+		if ent.object:get_luaentity() then
+			if ent and ent.object and ent.object.get_pos and (ent._is_a_mob or ent.health) then
+				local ep = ent.object:get_pos()
+				if ep and vector.distance(ep, p) < range then
+					eps[id] = ep
+				end
 			end
 		end
 	end
@@ -69,14 +71,17 @@ function mod.ranged_attack(itemstack, user, range)
 		for id in pairs(eps) do
 			if vector.distance(eps[id], p) < 1 then
 				local ent = minetest.luaentities[id]
-				if ent and ent._printed_name then
-					local player_name = user:get_player_name()
-					if player_name then
-						minetest.chat_send_player(player_name, 'You hit the ' .. ent._printed_name)
+				if ent.object:get_luaentity() then
+					if ent and ent._printed_name then
+						local player_name = user:get_player_name()
+						if player_name then
+							minetest.chat_send_player(player_name, 'You hit the ' .. ent._printed_name)
+						end
 					end
+
+					ent.object:punch(user, nil, itemstack:get_tool_capabilities(), nil)
 				end
 
-				ent.object:punch(user, nil, itemstack:get_tool_capabilities(), nil)
 				shot = true
 				break
 			end
@@ -88,6 +93,152 @@ function mod.ranged_attack(itemstack, user, range)
 		end
 	end
 end
+
+
+------------------------------------------------
+-- Mattock
+------------------------------------------------
+
+
+minetest.register_tool(mod_name..':mattock', {
+	description = 'Mattock',
+	drawtype = 'plantlike',
+	paramtype = 'light',
+	tiles = {'fun_tools_mattock.png'},
+	inventory_image = 'fun_tools_mattock.png',
+	groups = {dig_immediate = 3},
+	sounds = default.node_sound_wood_defaults(),
+	tool_capabilities = {
+		full_punch_interval = 1.0,
+		max_drop_level=1,
+		groupcaps={
+			cracky = {times={[1]=4.00, [2]=1.60, [3]=0.80}, uses=80, maxlevel=2},
+		},
+		damage_groups = {fleshy=3},
+	},
+	on_use = function(itemstack, user, pointed_thing)
+		if not (user and pointed_thing) then
+			return
+		end
+
+		if pointed_thing.type == 'node' then
+			local n = minetest.get_node(pointed_thing.under)
+			if n.name == 'default:cobble' then
+				minetest.set_node(pointed_thing.under, {
+					name = 'default:gravel',
+				})
+			elseif n.name == 'default:stone' then
+				minetest.set_node(pointed_thing.under, {
+					name = 'default:cobble',
+				})
+			end
+		elseif pointed_thing.type == 'object' then
+			pointed_thing.ref:punch(user, nil, itemstack:get_tool_capabilities(), nil)
+		end
+
+		--minetest.sound_play('', {
+		--	object = user,
+		--	gain = 0.1,
+		--	max_hear_distance = 30
+		--})
+
+		return itemstack
+	end,
+})
+
+minetest.register_craft({
+	output = mod_name..':mattock',
+	type = 'shapeless',
+	recipe = {'group:tree', 'group:stick',},
+})
+
+
+------------------------------------------------
+-- Pebble Thrower
+------------------------------------------------
+
+
+minetest.register_tool(mod_name..':pebble_thrower_unloaded', {
+	description = 'Pebble Thrower (unloaded)',
+	drawtype = 'plantlike',
+	paramtype = 'light',
+	tiles = {'fun_tools_pebble_thrower.png'},
+	inventory_image = 'fun_tools_pebble_thrower.png',
+	groups = {dig_immediate = 3},
+	sounds = default.node_sound_metal_defaults(),
+	on_use = function(itemstack, user, pointed_thing)
+		if not (mod.fast_load and user and pointed_thing) then
+			return
+		end
+
+		if mod.use_inventory_items(user, { 'tnt:gunpowder', mod_name..':pebble' }) then
+			itemstack:clear()
+			itemstack:add_item(mod_name..':pebble_thrower_loaded')
+			return itemstack
+		end
+	end,
+})
+
+minetest.register_craftitem(mod_name..':pebble', {
+	description = 'Pebble',
+	inventory_image = 'fun_tools_pebble.png',
+	--groups = {dig_immediate = 3},
+})
+
+minetest.register_craft({
+	output = mod_name..':pebble 50',
+	type = 'shapeless',
+	recipe = {'default:gravel'},
+})
+
+minetest.register_craft({
+	output = mod_name..':pebble_thrower_loaded',
+	type = 'shapeless',
+	recipe = {'tnt:gunpowder', mod_name..':pebble', mod_name..':pebble_thrower_unloaded',},
+})
+
+minetest.register_craft({
+	output = mod_name..':pebble_thrower_unloaded',
+	recipe = {
+		{'', '', ''},
+		{'group:stone', 'mobs:leather', 'default:flint'},
+		{'', '', 'group:wood'},
+	},
+})
+
+minetest.register_tool(mod_name..':pebble_thrower_loaded', {
+	description = 'Pebble Thrower (loaded)',
+	drawtype = 'plantlike',
+	paramtype = 'light',
+	tiles = {'fun_tools_pebble_thrower.png'},
+	inventory_image = 'fun_tools_pebble_thrower.png',
+	groups = {dig_immediate = 3},
+	sounds = default.node_sound_stone_defaults(),
+	tool_capabilities = {
+		full_punch_interval = 1.0,
+		max_drop_level=1,
+		groupcaps={
+			cracky = {times={[1]=4.00, [2]=1.60, [3]=0.80}, uses=80, maxlevel=2},
+		},
+		damage_groups = {fleshy=5},
+	},
+	on_use = function(itemstack, user, pointed_thing)
+		if not (user and pointed_thing) then
+			return
+		end
+
+		minetest.sound_play('flintlock', {
+			object = user,
+			gain = 0.1,
+			max_hear_distance = 30
+		})
+		mod.ranged_attack(itemstack, user, 25)
+
+		itemstack:clear()
+		itemstack:add_item(mod_name..':pebble_thrower_unloaded')
+		return itemstack
+	end,
+})
 
 
 ------------------------------------------------

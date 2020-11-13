@@ -12,7 +12,7 @@ local mod_name = 'fun_tools'
 
 local function flares(player)
 	local dir = player:get_look_dir()
-	local pos = player:getpos()
+	local pos = player:get_pos()
 	if not pos then
 		return
 	end
@@ -206,7 +206,7 @@ local torches = {
 	[ 'default:meselamp' ] = true,
 	[ 'default:pick_mese' ] = true,
 	[ 'default:sword_mese' ] = true,
-	[ 'dinv:ring_of_light' ] = true,
+	[ 'dinv:ring_light' ] = true,
 }
 
 
@@ -221,7 +221,7 @@ if mod.torchlight then
 		for i = 1, #players do
 			local player = players[i]
 
-			local pos = player:getpos()
+			local pos = player:get_pos()
 			pos = vector.round(pos)
 			pos.y = pos.y + 1
 

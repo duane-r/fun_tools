@@ -9,13 +9,13 @@ mod.version = '20190726'
 mod.path = minetest.get_modpath(minetest.get_current_modname())
 mod.world = minetest.get_worldpath()
 
-mod.creative = minetest.setting_getbool('creative_mode')
+mod.creative = minetest.settings:get_bool('creative_mode')
 mod.environ_mod = 'mapgen'
-mod.fast_load = minetest.setting_getbool('fun_tools_fast_load')
+mod.fast_load = minetest.settings:get_bool('fun_tools_fast_load')
 mod.ice_fuel_source = 'default:coalblock'
 mod.precision_tool = 'default:diamond'
-mod.remove_bronze = minetest.setting_getbool('fun_tools_remove_bronze')
-mod.torchlight = minetest.setting_getbool('fun_tools_torchlight')
+mod.remove_bronze = minetest.settings:get_bool('fun_tools_remove_bronze')
+mod.torchlight = minetest.settings:get_bool('fun_tools_torchlight')
 
 
 -- These all default to enabled... because I say.
