@@ -88,7 +88,7 @@ do
 		type = 'fixed',
 		fixed = {
 			{ -0.25, -0.5, -0.25, 0.25, 0.5, 0.25 },
-		}
+		},
 	}
 
 	minetest.register_node(mod_name..':incendiary', {
@@ -96,6 +96,7 @@ do
 		drawtype = 'nodebox',
 		node_box = incendiary_nodebox,
 		paramtype2 = 'facedir',
+		use_texture_alpha = 'blend',
 		place_param2 = 0,
 		tiles = {  'fun_tools_incendiary_top.png', 'fun_tools_incendiary_top.png',  'fun_tools_incendiary_side.png' },
 		groups = {choppy = 2, oddly_breakable_by_hand = 2, flammable = 2},

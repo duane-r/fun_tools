@@ -131,9 +131,14 @@ minetest.register_craft({
 for i in ipairs (default_material) do
 	local item = default_material [i][1]
 	local mat = default_material [i][2]
+	local trans = 'clip'
 	local desc = default_material [i][3]
 	local gro = default_material [i][4]
 	local drop = default_material[i][5]
+
+	if mat:find('salt') then
+		trans = 'blend'
+	end
 
 	if not drop then
 		drop = item
@@ -152,6 +157,7 @@ for i in ipairs (default_material) do
 		},
 		paramtype = 'light',
 		paramtype2 = 'facedir',
+		use_texture_alpha = trans,
 		walkable = true,
 		climbable = true,
 		drop = drop,
